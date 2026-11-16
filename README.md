@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — laboratory setup / baseline exploration.  
+**Project status:** In progress — API1 BOLA confirmed in local lab; API2–API10 not tested.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -20,7 +20,7 @@ A structured, hands-on API security assessment of the intentionally vulnerable [
 
 | ID | OWASP API Security risk (2023) | Status |
 |---|---|---|
-| API1 | Broken Object Level Authorization (BOLA) | Not started |
+| API1 | Broken Object Level Authorization (BOLA) | **Confirmed in local lab (researcher-verified)** — [finding](findings/API01-BOLA.md) |
 | API2 | Broken Authentication | Not started |
 | API3 | Broken Object Property Level Authorization | Not started |
 | API4 | Unrestricted Resource Consumption | Not started |
@@ -42,7 +42,7 @@ These are **assessment categories**, not a claim that ten exploitable vulnerabil
 - [Evidence handling policy](evidence/README.md)
 - [Reports and publication notes](reports/README.md)
 
-The `findings/` folder will be populated **only as each category is tested and documented**, rather than pre-writing hypothetical results.
+The `findings/` folder contains only evidence-based assessments. API1 includes an initial screenshot-observed response and researcher-reported verification of a second request; no redacted repeat screenshot has been uploaded. Remaining API categories are not yet tested.
 
 ## Methodology
 
@@ -50,9 +50,10 @@ The `findings/` folder will be populated **only as each category is tested and d
 
 Manual evidence takes precedence over unverified scanner alerts. Use test accounts owned by the researcher and stay within the local lab and controlled dependencies. Avoid production targets and disruptive load testing.
 
-## Baseline observation (2026-11-16)
+## Progress update (2026-11-16)
 
-A user-provided screenshot shows crAPI displaying `http://localhost:8888/login` and ZAP History recording `GET http://localhost:8888/login` with an HTTP `200 OK` response. ZAP's status bar appears to show a proxy on `localhost:8081`. This **does not yet prove** that authenticated API requests are being captured. Next action: use **Quick Start → Manual Explore → Launch Browser**, and inspect the login API request and response.
+ZAP intercepts local crAPI API traffic. Two researcher-owned test accounts (`TesterA`, `TesterB`) were created and authenticated, and a lab vehicle was attached to TesterB. A legitimate vehicle-location request was recorded, followed by a cross-account request using TesterA's token for TesterB's vehicle. The initial HTTP `200 OK` and TesterB data were observed in a ZAP screenshot; the researcher reports independently confirming the token/cookie isolation and reproducing the disclosure. This is documented as an API1 BOLA finding in the **intentionally vulnerable lab**. See [detailed evidence](findings/API01-BOLA.md) and [lab journal](docs/04-api1-bola-lab.md).
+
 
 ## References
 
