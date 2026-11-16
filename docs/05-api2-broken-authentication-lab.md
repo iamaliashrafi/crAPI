@@ -280,3 +280,26 @@ The researcher also tested the different password **P2** from attempted OTP repl
 **Current security status:** Rate-limiting behavior **under investigation**; no confirmed unthrottled brute force or OTP bypass. Predictable invalid OTP responses using HTTP 500 remain an API error-handling concern.
 
 **Evidence hygiene:** Screenshot shows a test email, test password, session cookie and one invalid OTP in application panes. Do not publish the raw screenshot; this journal preserves only sanitized metrics, omitting all payload values, account identifiers, and credentials.
+
+## API2 control A12 — server explicitly reports OTP attempt limit (2026-11-16)
+
+**Evidence:** Researcher-supplied OWASP ZAP screenshot with **Fuzzer Task ID 9** selected after the completed 12-request limited fuzz test. This screenshot shows the full response body for the one HTTP 503 result.
+
+| Property | Observed |
+|---|---|
+| Authorized target | `http://localhost:8888/identity/api/auth/v3/check-otp` |
+| Request method | `POST` |
+| Fuzzer entry | **Task ID 9** (the ninth fuzzed payload; Task ID 0 is listed as Original) |
+| HTTP status | **`503 Service Unavailable`** |
+| Exact response body (safe to quote) | `{"message":"You've exceeded the number of attempts.","status":503}` |
+| Response body size | **66 bytes** |
+| Earlier fuzzed entries (IDs 1–8) | HTTP **500**, 58-byte bodies |
+| Later fuzzed entries (IDs 10–12) | HTTP **500**, 34-byte bodies; their content **not yet inspected** |
+
+**Finding / confidence:** **Confirmed application-reported attempt limit** in this specific OTP validation flow. The response explicitly states an allowed-attempt threshold has been exceeded. This is evidence of a defensive control, **not evidence of an unprotected OTP brute-force vulnerability**. It is not possible to infer the precise threshold from this table alone, because an original request and earlier account-level attempts may have contributed to counters. We have not established whether the control is scoped to account, email, reset transaction, IP, or other identifier; whether it persists; or whether a correct code would be denied while limited.
+
+**Response-code quality:** The endpoint maps this expected limit to **HTTP 503** rather than the semantically preferable **HTTP 429 Too Many Requests**. Separately, invalid-code responses used HTTP 500; these are error-handling/status-code quality issues, not authentication bypasses.
+
+**Next step (no additional requests):** Select **Task ID 10** and inspect its response body. The 34-byte body is distinct from earlier 58-byte invalid-OTP responses; describe its exact message before deciding what happened following the threshold. Stop fuzzing pending interpretation.
+
+**Evidence safety:** Screenshot contains a plaintext lab password, an OTP guess, test email and cookie. Only the sanitized response, counts and metadata are retained in this public repository.
