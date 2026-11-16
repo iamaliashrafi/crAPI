@@ -84,3 +84,18 @@ A subsequent user-provided screenshot shows a Context named `crAPI-Lab` in the Z
 The researcher reported successfully accessing the crAPI application after retrying signup. This supports an **operator-reported successful account creation/access**, but no new ZAP screenshot has independently confirmed the successful HTTP response or token format yet. The password is for the isolated lab only; avoid sharing or reusing it.
 
 **Next learning milestone:** inspect the corresponding login HTTP request and response in ZAP History. Record method, path, content type and status only. Do not upload plaintext passwords, bearer tokens, cookies, session identifiers or unsanitized login messages. After login interception is verified, create researcher-controlled User B for subsequent BOLA authorization testing.
+
+## Session 0 — successful signup verified in ZAP (2026-11-16)
+
+A user-provided screenshot independently confirms a successful **signup** (not yet login). In ZAP History, entry **56** is selected:
+
+- HTTP method: `POST`
+- Endpoint: `/identity/api/auth/signup`
+- Request content type: `application/json`
+- Response: `HTTP/1.1 200`, JSON
+- Sanitized JSON response: `{"message":"User registered successfully! Please login.","status":200}`
+- The browser shows the **Login** form, but no authenticated login request/response is shown.
+
+**Interpretation:** The application accepted the test-account registration; authentication and token/session handling are **not yet verified**. The request pane visibly contains test-account credentials; **do not publish the raw screenshot or request body**. It is sufficient to document the method, endpoint, status and sanitized response text.
+
+**Next step:** Submit the login form, then select the resulting POST login request in ZAP History. Inspect response status and authentication mechanism while redacting all passwords, bearer tokens, cookies and session values.
