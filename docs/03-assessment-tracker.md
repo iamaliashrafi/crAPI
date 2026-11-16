@@ -4,7 +4,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 
 | ID | Category | Discovery status | Test status | Verified result | Evidence |
 |---|---|---|---|---|---|
-| API1 | Broken Object Level Authorization | User B baseline and cross-account attempt captured | Confirmation pending | Candidate: Manual GET #199 returned 200 with User B data; verify User A authentication context and reproduce | [Lab plan](04-api1-bola-lab.md), [Provisional finding](../findings/API01-BOLA.md) |
+| API1 | Broken Object Level Authorization | Completed: authorized B baseline + cross-account GET + researcher-verified repeat | **Confirmed in lab (researcher-verified)** | TesterA token requested TesterB location; HTTP 200 + TesterB private fields; first attempt screenshot, retest reported | [Lab journal](04-api1-bola-lab.md), [Confirmed finding](../findings/API01-BOLA.md) |
 | API2 | Broken Authentication | Pending | Not tested | — | — |
 | API3 | Broken Object Property Level Authorization | Pending | Not tested | — | — |
 | API4 | Unrestricted Resource Consumption | Pending | Not tested | — | — |
