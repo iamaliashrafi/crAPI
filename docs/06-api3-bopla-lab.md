@@ -104,3 +104,13 @@ References:
 **Safe next test:** If continuing API3, pursue another property-level scenario (e.g. Mass Assignment) with the researcher's own disposable account and reversible field updates only. Avoid publishing full JWTs, emails, cookies or vehicle IDs.
 
 **Evidence hygiene:** The raw screenshot contains an active-looking Bearer token, session cookie, addresses and vehicle identifiers. Keep unredacted images out of public GitHub, LinkedIn, and Upwork.
+
+## API3 profile surface B3 — editable profile capabilities identified (2026-11-16)
+
+**Evidence:** Researcher-provided screenshot of their own TesterA profile at `http://localhost:8888/my-profile`.
+
+**Visible UI:** name (displayed), email with **Change email** button, phone number with **Change phone number** button, avatar change control, and **My Personal Video → Upload Video** (maximum upload size shown as 10 MB). No API endpoint or profile-update request is visible in this screenshot.
+
+**Interpretation:** The profile page exposes potential update surfaces for an authorized, carefully controlled **Mass Assignment** test (API3 writable properties). The video-upload feature is located under profile, not the Community Forum view previously tested. Do not assume the existence or name of a profile-update endpoint until an actual ZAP request is observed.
+
+**Next step:** Click **Change phone number** and inspect the form without submitting changes. After observing its normal flow, locate the actual request in ZAP History, identify expected writable fields, and only then design a low-impact test using the researcher's own disposable TesterA data. No mass-assignment flaw has been tested or confirmed.
