@@ -26,9 +26,15 @@ Authentication proves a subject's identity. Object-level authorization determine
 
 Store only redacted request/response examples. Do not commit raw JWTs, passwords, cookies, account email addresses, VINs, mailbox messages, or exact GPS coordinates to this repository. Use identifiers like `<USER_B_VEHICLE_UUID>` in public reports.
 
-## Important current limitation
+## Lab milestone — User B vehicle visible (2026-11-16)
 
-The dashboard currently shows **No Vehicles Found** for the newly created account. No vehicle object UUID or user-owned resource baseline has been captured yet. An HTTP `200` from a login or JWT verification endpoint does **not** constitute a BOLA finding.
+**Observed in researcher-supplied screenshot:** the authenticated `TesterB` dashboard displays a lab vehicle, Mercedes-Benz **GLA Class**, model year **2026**, and a map/location marker. MailHog is also open in a separate tab. This supports the conclusion that User B's vehicle is linked and displayed; the exact VIN, owner-specific identifier, and coordinate values are deliberately not recorded here.
+
+In ZAP, the selected request is `GET /identity/api/v2/vehicle/vehicles` with `HTTP 200` and response body `[]`. The timestamp/order of this request relative to vehicle linking is not proven, so this **does not yet establish** that it is the request providing the currently visible vehicle details. Reproduce a fresh authorized vehicle-related request first.
+
+**Next controlled step (read-only baseline):** filter ZAP History to the local application using URL include regex `^http://localhost:8888/.*`; use the application's **Refresh Location** control if present, or refresh the dashboard, then identify the fresh vehicle-specific request. The upstream crAPI lab guide documents a location endpoint shaped like `/identity/api/v2/vehicle/<vehicleid>/location`, but the exact path and ID must be observed on this local deployment. Document only the endpoint pattern, response code and sanitized body; keep authorization tokens, full vehicle IDs and GPS coordinates private.
+
+**Status:** User B vehicle shown; User A vehicle/authorized baseline still pending; **no unauthorized cross-account request or BOLA result yet**.
 
 ## References
 
