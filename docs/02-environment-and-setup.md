@@ -78,3 +78,9 @@ A subsequent user-provided screenshot shows a Context named `crAPI-Lab` in the Z
 - **Security finding?** **No.** This is expected form input validation, not evidence of an API vulnerability.
 - **Follow-up:** use a fictitious test number, change the exposed test password and retry registration. Confirm success via a new request and response; do not assume the outcome.
 - **Disclosure practice:** Never commit credentials, cookies, bearer tokens, or raw screenshots containing passwords; redact before sharing.
+
+## Session 0 — test account A status (2026-11-16)
+
+The researcher reported successfully accessing the crAPI application after retrying signup. This supports an **operator-reported successful account creation/access**, but no new ZAP screenshot has independently confirmed the successful HTTP response or token format yet. The password is for the isolated lab only; avoid sharing or reusing it.
+
+**Next learning milestone:** inspect the corresponding login HTTP request and response in ZAP History. Record method, path, content type and status only. Do not upload plaintext passwords, bearer tokens, cookies, session identifiers or unsanitized login messages. After login interception is verified, create researcher-controlled User B for subsequent BOLA authorization testing.
