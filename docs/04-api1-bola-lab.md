@@ -74,3 +74,19 @@ The latter is selected and its response contains a single User B lab vehicle, co
 **Next step:** while logged in as User B, use the application's Refresh Location function (scroll around the vehicle location UI if needed), then locate the new GET in ZAP History. If the control is missing in this deployment, use ZAP Requester to construct an authorized read-only baseline against **User B's own vehicle**, retaining User B's existing authenticated session and avoiding all third-party domains. Do not yet test cross-user access. Redact JWTs, UUIDs, PINs, VINs and precise location data from any published evidence.
 
 **Finding status:** no cross-account request or BOLA finding confirmed.
+
+## Baseline evidence B3 — vehicle-specific location (2026-11-16)
+
+**Researcher-provided ZAP screenshot:** History item **188** selected. This is the first locally verified vehicle-specific read-only request.
+
+- **Method/path:** `GET /identity/api/v2/vehicle/<USER_B_VEHICLE_UUID>/location`.
+- **Host:** `localhost:8888` (authorized local crAPI lab).
+- **Authentication:** `Authorization: Bearer <USER_B_JWT_REDACTED>` is visible; the surrounding test context is TesterB.
+- **Response:** `HTTP/1.1 200 OK`, `Content-Type: application/json`.
+- **Sanitized shape:** `{"carId":"<USER_B_VEHICLE_UUID>","vehicleLocation":{"id":<LOCATION_RECORD_ID>,"latitude":"<REDACTED>","longitude":"<REDACTED>"},"fullName":"TesterB","email":"<REDACTED>"}`.
+- **Interpretation:** an authenticated User B request returns its lab vehicle location and related account details. This is a valid authorized baseline, not evidence of unauthorized cross-account access.
+- **Sensitive-data handling:** the screenshot includes a full JWT, the vehicle UUID, latitude/longitude, an email, and a session cookie. The original screenshot must **not** be posted to this public repository. We store only substituted placeholder fields above.
+- **Next test:** keep this User B target URL unaltered, authenticate as TesterA, then resend a **GET** in ZAP Requester using **only TesterA's valid Authorization header**, not TesterB's. Compare the observed result with the expected access denial or other explicitly permitted behavior. Preserve read-only method and local target; no mass scanning. Do not report BOLA until unauthorized data disclosure is confirmed and reproduced.
+- **Note:** User A does not strictly require a car to test whether its authenticated identity can access B's car, though separate vehicles can enrich later bidirectional testing.
+
+**Finding status:** User B location baseline confirmed; cross-account authorization test pending.
