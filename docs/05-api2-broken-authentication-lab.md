@@ -247,3 +247,17 @@ The researcher explicitly confirmed that the password supplied in successful OTP
 **Stronger follow-up if necessary:** Create a fresh OTP reset with two newly distinct lab passwords. First submit a valid OTP with P1 and **verify login with P1 before any replay**. Then replay that same consumed OTP with P2, and test both credentials (carefully one attempt each) to learn whether the second request altered the password despite a failure response. This sequencing removes the current baseline ambiguity; do not brute-force codes.
 
 **Finding status:** Suspected OTP replay/state-change issue under investigation; **not confirmed**. Keep the distinct HTTP 500 error-handling observation separate.
+
+## API2 replay clarification A10 — researcher reports P1 also authenticates (2026-11-16)
+
+**Correction to previous interpretation:** The researcher explicitly states that the password from the **successful** OTP reset request **235** (P1) **does work**. Prior ZAP screenshot History **237** shows successful login with the **different** password used in replay request **236** (P2). Earlier commentary that P1 no longer works is **incorrect and superseded**.
+
+**Observed / reported timeline:**
+- `235`: `POST /identity/api/auth/v3/check-otp` with P1: HTTP `200`.
+- `236`: Requester replay of used OTP with a different P2: HTTP `500` and `Invalid OTP`.
+- `237`: Login with P2: HTTP `200` and JWT (screenshot).
+- Subsequent login with P1: **researcher-reported successful**, but no new ZAP History screenshot or timestamp provided.
+
+**Interpretation:** These results raise an unresolved question about possible acceptance of both passwords (or an account state/timing issue), but do not prove simultaneous validity from two fresh sessions. Do **not** claim OTP replay successfully changed the password, that P1 is invalid, or that single-use protection is confirmed. Distinguish the claimed P1 login from the observed screenshot evidence of P2 login. A controlled fresh-session, one-attempt-per-password comparison without further resets is needed to establish current password state.
+
+**Status:** Suspected authentication state inconsistency — **not yet confirmed as an exploitable API2 vulnerability**. Do not publish unredacted passwords or JWTs.
