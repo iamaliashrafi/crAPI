@@ -1,30 +1,29 @@
-# API1:2023 — Potential Broken Object Level Authorization in Vehicle Location API
+# API1:2023 — Broken Object Level Authorization in Vehicle Location API
 
 **Finding ID:** API01-BOLA-001  
-**Status:** Strong candidate — independent confirmation pending  
-**Date tested:** 2026-11-16  
-**Target:** OWASP crAPI running on a local, intentionally vulnerable lab at `http://localhost:8888`  
-**OWASP category:** [API1:2023 Broken Object Level Authorization](https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization/)  
-**Severity:** Not yet rated; dependent on confirmed authentication context and impact  
-**Tool:** OWASP ZAP Requester
+**Status:** **Confirmed in the local lab — researcher-verified repeat**  
+**Assessment date:** 2026-11-16  
+**Target:** Self-hosted OWASP crAPI (`http://localhost:8888`)  
+**OWASP classification:** [API1:2023 — Broken Object Level Authorization](https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization/)  
+**Risk level:** **High (preliminary qualitative assessment; not a finalized CVSS score)**  
+**Tool:** OWASP ZAP (History and Requester)  
+**Remediation status:** Not implemented or retested.
 
 ## Executive summary
 
-A researcher-controlled API test against the lab vehicle location endpoint returned an HTTP `200 OK` response containing User B's private vehicle location and associated name and email. The researcher was attempting to send the request using User A's bearer token to User B's vehicle object. If the identity/context is confirmed as User A, this is an object-level authorization failure. At present we have one manually executed request and its response, but the screenshot alone does not cryptographically prove JWT ownership or absence of any User B cookies. Treat this as a **candidate**, not a validated production pentest finding.
+A read-only authenticated cross-account request to the vehicle-location API returned a different research user's vehicle coordinates and associated identity information. The researcher used a valid token from User A (`TesterA`) while keeping the vehicle identifier belonging to User B (`TesterB`). The researcher subsequently confirmed that the request contained User A's token, had no User B authentication cookie, and reproduced the disclosure.
 
-## Prerequisites and intended access control
+**Evidence provenance:** The initial cross-account HTTP `200 OK` and User B JSON body are visible in a screenshot of ZAP Requester. The final verification of token equality, absence of User B cookies, and successful second request are **researcher-reported**, not supported by a separately uploaded screenshot. Both kinds of evidence are disclosed transparently. This is a controlled, intentionally vulnerable lab and **not** a client engagement.
 
-Two local research accounts (`TesterA`, `TesterB`) were registered and authenticated. `TesterB` has an assigned lab vehicle. A legitimate request from TesterB to that vehicle location returned data for TesterB (authorized baseline).
+## Scope and preconditions
 
-Expected secure behavior: a token from TesterA must not permit accessing nonpublic TesterB location and identity information, absent an explicit access-sharing arrangement.
+- Two independent accounts owned by the researcher: `TesterA` and `TesterB`.
+- User B owns the target lab vehicle.
+- Local authorization target: `localhost:8888` only.
+- No production service, third-party host, or real user account was tested.
+- The test used a read-only `GET`, without data modification.
 
-## Evidence summary (sanitized)
-
-**Authorized baseline:** ZAP History `188`, GET to User B's vehicle location, `200 OK`, response identifying `TesterB`.
-
-**Cross-account attempt:** ZAP Requester Manual History `199`, GET to the same User B vehicle location, `200 OK`, response size `177` bytes, request time `30 ms`, data still identifying `TesterB`. Prior History `193`, `195` and `196` show login, token verification, and dashboard requests consistent with User A session.
-
-Example target/request shape (not raw captured credentials):
+## Affected endpoint
 
 ```http
 GET /identity/api/v2/vehicle/<USER_B_VEHICLE_UUID>/location HTTP/1.1
@@ -33,7 +32,19 @@ Authorization: Bearer <USER_A_JWT_REDACTED>
 Accept: */*
 ```
 
-Observed response shape (sensitive values omitted):
+Only the *authentication context* was changed from B to A; the resource path continued to identify B's vehicle. A copied `chat_session` Cookie header was removed before the verification, as reported by the researcher.
+
+## Evidence and reproduction
+
+| Step | Actor and operation | Observation | Provenance |
+|---|---|---|---|
+| 1. Authorized baseline | `TesterB` GETs its own vehicle location | HTTP `200 OK`; JSON identifies `TesterB` | ZAP History `188` screenshot |
+| 2. Identity preparation | `TesterA` logs in and accesses own dashboard | Login, verify, dashboard show HTTP `200` | ZAP History `193`, `195`, `196` screenshot |
+| 3. Cross-account read | Tester's Requester GETs B's vehicle location | HTTP `200 OK`, 177-byte JSON identifying `TesterB`, including private coordinates | ZAP Manual History `199` screenshot |
+| 4. Isolation check | Compare User A's bearer token to the cross-account Requester token; ensure no User B cookie remains | Authentication context confirmed as `TesterA` | **Researcher-reported** |
+| 5. Independent repeat | Repeat the same read-only GET against B's vehicle under User A credentials | HTTP `200 OK` and B's data returned again | **Researcher-reported; additional redacted screenshot not yet supplied** |
+
+### Sanitized response shape
 
 ```json
 {
@@ -48,30 +59,41 @@ Observed response shape (sensitive values omitted):
 }
 ```
 
-The shown request is an **illustrative intended test shape**. Its exact authentication context for entry `199` must still be independently rechecked before confirmation.
+The values above are placeholders, **not** raw evidence. Do not publish raw JWTs, vehicle identifiers, coordinates, VINs, PINs, passwords, cookies, or unredacted request/response screenshots.
 
-## Next validation steps
+## Expected vs actual behavior
 
-1. Confirm the URL still contains User B's own vehicle ID.
-2. Confirm the Authorization header contains only TesterA's bearer token and no Cookie or other authentication material copied from TesterB's session.
-3. Independently establish that the same token identifies TesterA, e.g. through User A's own authorized dashboard endpoint.
-4. Repeat one non-destructive GET of User B's location using TesterA's token.
-5. Compare status, body and account identity to User B's authorized baseline.
-6. If cross-account disclosure is reproducible, mark **Confirmed**, assess security impact and severity, and provide a sanitized evidence screenshot.
+**Expected:** The backend denies a request by `TesterA` for nonpublic `TesterB` vehicle location data unless an explicit access grant exists. A suitable `403 Forbidden` or masked `404 Not Found` response may be used.
 
-## Impact if confirmed
+**Actual (researcher-verified):** The backend accepted User A's authenticated request to B's vehicle and returned User B's location and identity fields.
 
-An authenticated user could read another account's vehicle coordinates and associated identity details by addressing another vehicle object. This could expose private location information and user details. This is a lab-specific observation until verified and must not be portrayed as a production-customer incident.
+## Security impact
 
-## Proposed remediation (to verify against actual implementation)
+**Confidentiality loss:** An authenticated account may retrieve another account's private vehicle location and identifying information when it knows or obtains the relevant vehicle identifier. Such exposure can facilitate unauthorized monitoring or user profiling. This test demonstrates **read** access only; it does not demonstrate vehicle modification or privilege escalation.
 
-Authorize access to every vehicle object server-side, using authenticated user identity and the object's permitted owner/association. For each location request, verify ownership or an explicit delegated permission *before* returning location or personally identifying fields. Respond with a consistent denial (e.g., `403` or `404`) when authorization fails. Add automated negative tests for cross-account access and avoid relying on identifier unguessability as an access control.
+**Preliminary risk:** High due to cross-account private location and identity disclosure. A final CVSS vector requires full evaluation of deployment exposure, attacker prerequisites, impact, and scope. Do not extrapolate lab exploitation to production systems.
 
-## Scope and evidence handling
+## Likely root cause and recommended remediation
 
-Only the self-hosted OWASP crAPI lab is in scope. Do not publish JWTs, passwords, cookies, unredacted screenshots, real email addresses, vehicle VIN/PIN, vehicle UUID or precise location values. The screenshot used to make these observations is **not uploaded** to this repository.
+The observed behavior is consistent with a missing or ineffective **object-level authorization check**, although source code has **not** been reviewed; exact root cause is not proven.
 
-## Cross-references
+1. Derive the requesting user from validated authentication server-side.
+2. Resolve the vehicle by ID and verify the user owns the vehicle or has a valid delegated permission **before** returning location or identity data.
+3. Deny access consistently without revealing private fields, even when the UUID is valid.
+4. Apply equivalent checks to every vehicle-related object endpoint; do not rely on unguessable identifiers.
+5. Add automated negative authorization regression tests using two independent test accounts, including `A → vehicle B` and `B → vehicle A`.
+6. Retest after a code change and record the response and status.
 
-- [Lab notes and test sequence](../docs/04-api1-bola-lab.md)
-- [Assessment methodology](../docs/01-scope-and-methodology.md)
+## Final verification still useful for the portfolio
+
+A **sanitized screenshot of the repeated Requester test** with the Authorization value covered, URL UUID redacted and precise location/email hidden would strengthen independent auditability. This is an evidence-publication task, **not** a prerequisite to record the researcher's confirmed lab finding.
+
+## Ethical / publication statement
+
+This is a security training exercise against an intentionally vulnerable local OWASP crAPI deployment, not a real customer or production target. No live credentials or unsanitized screenshots are committed.
+
+## Related material
+
+- [Step-by-step lab journal](../docs/04-api1-bola-lab.md)
+- [Top 10 assessment tracker](../docs/03-assessment-tracker.md)
+- [Scope and methodology](../docs/01-scope-and-methodology.md)
