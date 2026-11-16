@@ -35,3 +35,20 @@ The official crAPI challenge set includes Challenge 5, **“Find an API endpoint
 ## Prior API2 transition note
 
 The researcher reported having attempted JWT invalidation after a password reset and requested to move on. No pre-/post-reset JWT request/response pair or conclusive status was supplied. Therefore **JWT invalidation has not been verified** in the report; do not infer that the old JWT was revoked or remained active. API2's earlier OTP-attempt-limit observation remains separately documented in `docs/05-api2-broken-authentication-lab.md`.
+
+## API3 scope correction — Forum posts rather than profile videos (2026-11-16)
+
+**Evidence received:** The researcher supplied a screenshot of the authenticated TesterB session at `http://localhost:8888/forum` under **Community → Forum**. It shows a feed of three user posts with titles, poster names, dates and brief text; **no video widget is visible in the Forum view**. Do not claim that the current crAPI build lacks video features entirely: video-upload flows are associated with **user profile / personal video**, not this Forum screen.
+
+**Adjusted initial investigation:** Start with the read-only **crAPI Challenge 4** (Excessive Data Exposure in community posts), rather than requiring a video upload for Challenge 5.
+
+**Candidate endpoint:** `GET /community/api/v2/community/posts/recent` is documented in third-party crAPI research; **not yet independently observed in this researcher's ZAP session**. First locate the actual GET for community posts in ZAP History (search for `posts` or `posts/recent`) and inspect Response Body.
+
+**What to compare:** The visible feed displays post title, author display name, date and content. Enumerate the response's JSON property **names** and compare to those visible fields; assess whether extra fields contain potentially sensitive user/contact/internal data. A field being absent from the UI is **not by itself proof of an information disclosure**—sensitivity, access expectations, and impact must be established.
+
+**Evidence status:** Only UI observation; no community-post JSON response examined yet and no API3 finding confirmed.
+
+References:
+- https://owasp.github.io/www-project-crapi/ (Challenges 4 and 5)
+- https://cybersec-research.space/posts/crAPI_writeup/ (example community post endpoints)
+- https://www.zaproxy.org/docs/desktop/start/features/history/
