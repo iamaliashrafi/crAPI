@@ -213,3 +213,25 @@ This repository is **public**. Store only sanitized summaries and permanently re
 ### Evidence hygiene
 
 The source screenshot exposes a lab OTP, lab password, account email and `chat_session_id` cookie. Do not upload it unchanged to the public GitHub repository. Only this redacted textual summary has been saved.
+
+## API2 control A8 — login after OTP replay attempt (2026-11-16)
+
+**Source:** Researcher-provided ZAP screenshot of a login to research-owned TesterB following the one-time-code replay experiment.
+
+| Field | Observation |
+|---|---|
+| ZAP History ID | `237` |
+| Method | `POST` |
+| Endpoint | `/identity/api/auth/login` |
+| Request structure | `email` and `password` (values intentionally not recorded) |
+| HTTP response | `200 OK` |
+| Response behavior | `Login successful`, a JWT is returned (not recorded) |
+| Related events | Subsequent dashboard and token verification traffic returned HTTP `200` |
+
+**Critical interpretation:** The supplied screenshot establishes that the password submitted in login request 237 is valid after the replay attempt. The password appears to match the password visible in replay request **236**. However, the selected successful initial `check-otp` request **235** has **not** been shown with its password value, so we cannot tell whether 235 and 236 used the **same** or **different** passwords. Therefore the login success is **not** evidence that replay caused a password update, and also **not** evidence that replay left the original password unchanged.
+
+If 235 and 236 used the same password, a successful login at 237 is the expected result of the first valid reset. If they differed, a successful login using 236's password despite the replay's HTTP 500 would warrant careful investigation into side effects or improper state changes. The next step is to **locally compare** the password values used in History 235 vs 236 without sharing them; only report whether they were identical. If different, test which one currently authenticates (one controlled attempt per password). If identical, design a fresh paired-password experiment before drawing a firm conclusion.
+
+**API2 assessment status:** In progress. Single replay returned HTTP 500 and `Invalid OTP` (History 236); password-state outcome unresolved. No authentication bypass or OTP replay vulnerability confirmed.
+
+**Disclosure policy:** The source screenshot contains a plaintext lab password and an issued JWT. Never upload it unredacted to this public repository. This entry contains only sanitized metadata.
