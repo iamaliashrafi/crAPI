@@ -44,3 +44,15 @@ If a browser launched outside ZAP does not show new requests, use **Launch Brows
 | ZAP main proxy | localhost:8081 (visible in screenshot; confirm) |
 | Browser | Firefox (shown in screenshot; confirm) |
 | Authentication model | To verify from actual traffic |
+
+## Session 0 — follow-up screenshot review (2026-11-16)
+
+The second user-provided screenshot shows crAPI's `/login` page next to ZAP. ZAP History includes:
+- ID 48: `GET http://localhost:8888/%F0%9F%A4%96` — HTTP `404`; no vulnerability conclusion can be drawn from this alone.
+- ID 49: `GET http://localhost:8888/chatbot/genai/state` — HTTP `200`, tagged as a JSON response.
+- ZAP shows `Main Proxy: localhost:8081` in the footer.
+- **Assessment:** local HTTP requests are being captured in History; API authentication traffic and launch via Manual Explore are not independently verified.
+- Manual Explore's input field still displays `http://`, so do not claim it was populated or that Launch Browser was used.
+- **Next actionable step:** create the `crAPI-Lab` Context from the `http://localhost:8888` node in Sites and verify that only this local origin is included. Then proceed with test-account setup and an authenticated API request.
+- This screenshot has **not** been uploaded to the repository; the verified observations are recorded in this text.
+
