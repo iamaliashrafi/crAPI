@@ -39,16 +39,16 @@ Never target other people's accounts. This exercise uses only the two accounts e
 
 ## First capture log
 
-**Pending.** No password-reset request or response has yet been shown to the assistant. Fill in only after observed evidence:
+**First recovery initiation observed in ZAP History #202.** See A1 below. The verification and completion endpoints are still pending.
 
 | Field | Observed |
 |---|---|
-| Timestamp | Pending |
-| ZAP History ID | Pending |
-| Request method | Pending |
-| API endpoint | Pending |
-| Response code | Pending |
-| Response behavior | Pending |
+| Timestamp | 2026-11-16 (screenshot) |
+| ZAP History ID | 202 |
+| Request method | POST |
+| API endpoint | /identity/api/auth/forget-password |
+| Response code | 200 |
+| Response behavior | API reports OTP sent to TesterB test email |
 | Verification method | Pending |
 
 ## Interpretation standards
@@ -67,3 +67,24 @@ This repository is **public**. Store only sanitized summaries and permanently re
 - [OWASP API2:2023 Broken Authentication](https://api-security.owasp.org/editions/2023/en/0xa2-broken-authentication/)
 - [OWASP crAPI Challenge 3](https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md)
 - [ZAP Requester documentation](https://www.zaproxy.org/docs/desktop/addons/requester/)
+
+## API2 baseline A1 — password-recovery initiation captured (2026-11-16)
+
+**Source:** Screenshot from the researcher's own local OWASP ZAP session, selected History ID **202**.
+
+| Field | Verified value |
+|---|---|
+| Method | `POST` |
+| Path | `/identity/api/auth/forget-password` |
+| Host | `http://localhost:8888` |
+| Request Content-Type | `application/json` |
+| Request body shape | `{"email":"<TESTER_B_EMAIL_REDACTED>"}` |
+| HTTP response | `200 OK`, `application/json` |
+| Sanitized response shape | `{"message":"OTP Sent on the provided email, <REDACTED>","status":200}` |
+| ZAP History ID | `202` |
+
+**Interpretation:** The local API accepted the password-recovery initiation for research-controlled account TesterB and returned a message saying an OTP was sent. This does *not* independently verify delivery of an email, OTP validity/expiry, rate limiting, or any authentication flaw. **No API2 vulnerability has been confirmed.**
+
+**Evidence handling:** The source screenshot includes the full test email and a `chat_session_id` cookie. Do not commit the original screenshot or copy session identifiers, reset codes, or reset links into the repository.
+
+**Next practical step:** Open the *local* MailHog interface at `http://localhost:8025` and locate the new password-reset message addressed to research-controlled TesterB. Confirm its existence, without sending the actual OTP or full reset link to public reports. Return to crAPI, observe the legitimate OTP/verification step and corresponding ZAP requests; do not perform guessing or automated attempts.
