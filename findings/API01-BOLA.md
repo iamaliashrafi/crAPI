@@ -13,7 +13,7 @@
 
 A read-only authenticated cross-account request to the vehicle-location API returned a different research user's vehicle coordinates and associated identity information. The researcher used a valid token from User A (`TesterA`) while keeping the vehicle identifier belonging to User B (`TesterB`). The researcher subsequently confirmed that the request contained User A's token, had no User B authentication cookie, and reproduced the disclosure.
 
-**Evidence provenance:** The initial cross-account HTTP `200 OK` and User B JSON body are visible in a screenshot of ZAP Requester. The final verification of token equality, absence of User B cookies, and successful second request are **researcher-reported**, not supported by a separately uploaded screenshot. Both kinds of evidence are disclosed transparently. This is a controlled, intentionally vulnerable lab and **not** a client engagement.
+**Evidence provenance:** The initial cross-account HTTP `200 OK` and User B JSON body are visible in a ZAP Requester screenshot (History `199`). A later screenshot independently shows a second manual GET (History `200`) returning `200 OK` and the same User B response shape. The verification that the bearer token was exclusively TesterA's and that no User B cookie was included remains **researcher-reported**; neither screenshot independently establishes token ownership. Both kinds of evidence are disclosed transparently. This is a controlled, intentionally vulnerable lab and **not** a client engagement.
 
 ## Scope and preconditions
 
@@ -86,7 +86,7 @@ The observed behavior is consistent with a missing or ineffective **object-level
 
 ## Final verification still useful for the portfolio
 
-A **sanitized screenshot of the repeated Requester test** with the Authorization value covered, URL UUID redacted and precise location/email hidden would strengthen independent auditability. This is an evidence-publication task, **not** a prerequisite to record the researcher's confirmed lab finding.
+A screenshot of the repeated Requester response has now been provided: History `200`, HTTP `200 OK`, 177-byte body identifying TesterB. **It is unredacted and not suitable for uploading**. Before public evidence publication, create a sanitized screenshot that hides JWTs, cookies, full UUIDs, exact coordinates and email. For stronger independent auditability, capture the repeated request's authentication header (with token text fully redacted) and a separate proof of token ownership, without exposing secrets.
 
 ## Ethical / publication statement
 
@@ -97,3 +97,7 @@ This is a security training exercise against an intentionally vulnerable local O
 - [Step-by-step lab journal](../docs/04-api1-bola-lab.md)
 - [Top 10 assessment tracker](../docs/03-assessment-tracker.md)
 - [Scope and methodology](../docs/01-scope-and-methodology.md)
+
+## Additional observed reproduction evidence — 2026-11-16
+
+The researcher supplied a second ZAP screenshot. In History, item **200** has Source **Manual**, method **GET**, local crAPI vehicle endpoint, status **200**, reported request time **25 ms**, and response size **177 bytes**. A foreground Manual Request Editor **Response** tab shows a fresh HTTP `200 OK` response with a JSON body containing the User B lab vehicle identifier, location coordinates, fullName `TesterB`, and email. This independently supports **repeated return of User B data**. The screenshot does *not* independently show the edited request's token ownership; User A authentication and lack of User B cookies are confirmed by the researcher and must be attributed as such. The raw screenshot contains location data and identifiers and was **not uploaded to GitHub**.
