@@ -1,7 +1,7 @@
 # API3:2023 — Broken Object Property Level Authorization (BOPLA) lab
 
 **Target:** Researcher-owned, self-hosted OWASP crAPI at `http://localhost:8888`  
-**Status:** In progress — scenario selected; no test evidence collected yet  
+**Status:** Cross-account excessive property exposure confirmed in local lab; severity and downstream impact remain provisional  
 **Researcher accounts:** Research-owned TesterA and TesterB only
 
 ## OWASP concept
@@ -81,3 +81,26 @@ References:
 **Next step:** Sign in to the local crAPI Forum using research-owned **TesterA** and capture its normal `GET /community/api/v2/community/posts/recent?limit=30&offset=0` in ZAP. Compare the set of author-property names and confirm whether other authors' `email` and `vehicleid` properties are returned to that different account as well. No request tampering, password guessing, or write operations are needed.
 
 **Evidence hygiene:** Original ZAP screenshot contains a complete Bearer JWT, session cookie, email addresses and vehicle IDs. **Do not upload the screenshot as-is** to this public GitHub repository; all values are omitted in this sanitized text record.
+
+## API3 follow-up B2 — second-account confirmation (2026-11-16)
+
+**Evidence:** Researcher-supplied OWASP ZAP screenshot from the second research-owned account (**TesterA**, per test instructions). History records a new login at **354** and successful dashboard API traffic at **355**, followed by GET request **360**.
+
+| Observation | TesterB baseline | TesterA follow-up |
+|---|---|---|
+| History ID | 352 | **360** |
+| Endpoint | `GET /community/api/v2/community/posts/recent?limit=30&offset=0` | Same endpoint |
+| HTTP status | `200 OK` | `200 OK` |
+| JSON body size | 1007 bytes | 1007 bytes |
+| Returned posts | 3 | 3 |
+| `posts[].author.email` | Visible in JSON | **Visible in JSON** |
+| `posts[].author.vehicleid` | Visible in JSON | **Visible in JSON** |
+| UI comparison | Email/vehicle ID not displayed in Forum | Normal authenticated view of same Forum |
+
+**Conclusion:** The same sensitive author property categories are returned to **two independently authenticated research-owned sessions**, including other post authors. This is a **confirmed local-lab cross-account exposure of surplus author properties**, matching the excess-data-exposure side of OWASP API3:2023. The application's explicit privacy policy, intended public disclosure, and exploitability of these particular vehicle IDs in the separate BOLA endpoint are **not** independently established; severity is provisional. The researcher did not exploit the IDs from this response.
+
+**Formal sanitized report:** [API03 — Community Forum Discloses Author Email and Vehicle Identifier](../findings/API03-EXCESSIVE-DATA-EXPOSURE.md).
+
+**Safe next test:** If continuing API3, pursue another property-level scenario (e.g. Mass Assignment) with the researcher's own disposable account and reversible field updates only. Avoid publishing full JWTs, emails, cookies or vehicle IDs.
+
+**Evidence hygiene:** The raw screenshot contains an active-looking Bearer token, session cookie, addresses and vehicle identifiers. Keep unredacted images out of public GitHub, LinkedIn, and Upwork.
