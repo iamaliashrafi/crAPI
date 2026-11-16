@@ -130,3 +130,19 @@ A researcher-provided screenshot displays ZAP History **ID 59** selected, with t
 **Evidence handling:** the original screenshot reveals a test-only password and a potentially live JWT; it must not be added unredacted to this public repository or to portfolio posts. Do not store raw login payloads, cookies or JWTs in GitHub.
 
 **Next milestone:** create a second researcher-owned account (User B) using a separate session or by logging out; capture a sanitized success summary, then identify a resource owned by User B and establish authorized baseline requests for API1:2023 BOLA.
+
+## Session 0 — second test account registration confirmed (2026-11-16)
+
+The screenshot supplied by the researcher shows ZAP History item **72** capturing User B / `TesterB` registration.
+
+- `POST /identity/api/auth/signup`
+- HTTP response: `200 OK`; `Content-Type: application/json`
+- Sanitized response: `{"message":"User registered successfully! Please login.","status":200}`
+- Browser displays the login screen following registration; **successful login by User B has not yet been observed**.
+- Two distinct researcher-owned lab accounts (TesterA and TesterB) are now reported as registered. Test account A's login was independently observed in an earlier screenshot.
+
+**Status:** registration setup achieved. This is not a confirmed vulnerability finding.
+
+**Evidence security:** Screenshot contains lab credentials and test-user details; do **not** commit the original screenshot or a raw request to the public repo. The relevant HTTP metadata and sanitized response are sufficient.
+
+**Next step:** Log in to User B, verify a `POST /identity/api/auth/login` HTTP `200` response and dashboard identity, then identify one user-owned resource per account for an API1 BOLA baseline test.
