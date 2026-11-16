@@ -6,7 +6,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 |---|---|---|---|---|---|
 | API1 | Broken Object Level Authorization | Completed: authorized B baseline + cross-account GET + researcher-verified repeat | **Confirmed in lab (researcher-verified)** | TesterA token requested TesterB location; HTTP 200 + TesterB private fields; first attempt screenshot, retest reported | [Lab journal](04-api1-bola-lab.md), [Confirmed finding](../findings/API01-BOLA.md) |
 | API2 | Broken Authentication | Password reset, used-OTP replay and controlled 12-request OTP fuzz completed; JWT invalidation reportedly attempted | Paused — JWT invalidation inconclusive | OTP attempt-limit message observed; no OTP replay bypass confirmed. JWT pre/post-reset comparison not provided, so its outcome is **unverified**. | [API2 lab journal](05-api2-broken-authentication-lab.md) |
-| API3 | Broken Object Property Level Authorization | Initial read-only video property-exposure scenario selected (crAPI Challenge 5) | In progress — awaiting GET baseline | No API3 issue verified yet | [API3 lab journal](06-api3-bopla-lab.md) |
+| API3 | Broken Object Property Level Authorization | Authenticated Forum GET #352 captured; UI vs JSON property comparison performed | Potential exposure — cross-account validation pending | Posts feed HTTP 200 returned author `email` and `vehicleid` not visible in Forum UI; privacy/impact and cross-account access not yet confirmed | [API3 lab journal](06-api3-bopla-lab.md) |
 | API4 | Unrestricted Resource Consumption | Pending | Not tested | — | — |
 | API5 | Broken Function Level Authorization | Pending | Not tested | — | — |
 | API6 | Unrestricted Access to Sensitive Business Flows | Pending | Not tested | — | — |
