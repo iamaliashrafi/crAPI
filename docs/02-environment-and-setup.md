@@ -99,3 +99,17 @@ A user-provided screenshot independently confirms a successful **signup** (not y
 **Interpretation:** The application accepted the test-account registration; authentication and token/session handling are **not yet verified**. The request pane visibly contains test-account credentials; **do not publish the raw screenshot or request body**. It is sufficient to document the method, endpoint, status and sanitized response text.
 
 **Next step:** Submit the login form, then select the resulting POST login request in ZAP History. Inspect response status and authentication mechanism while redacting all passwords, bearer tokens, cookies and session values.
+
+## Session 0 — authenticated dashboard and JWT verification (2026-11-16)
+
+A new researcher-provided screenshot shows the crAPI **Dashboard** for researcher-owned account `TesterA` after login. ZAP History includes:
+- Entries **57** and **58**: `POST /identity/api/auth/l...`, HTTP `401` (URL truncated in the visible History column; not yet independently inspected).
+- Entry **59**: `POST /identity/api/auth/l...`, HTTP `200`; likely the successful login request, pending inspection of its full URL and response.
+- Entry **64** (selected): `POST /identity/api/auth/verify`, HTTP `200`. A JWT was sent in a JSON request body. The response reports `{"message":"The token is a valid JWT token","status":200}`.
+- Entries **65–66**: subsequent `GET` requests under `/identity/api/v2/...`, HTTP `200` (paths truncated in the screenshot).
+
+**Validated:** dashboard access under TesterA and a server response affirming that the submitted JWT is valid. **Not established:** the exact shape and issuance of the login response, token expiry, or whether any access controls can be bypassed. Authentication success must not be confused with object-level authorization.
+
+**Information handling:** the screenshot exposes an active-looking JWT in the ZAP request body. Never commit the screenshot, JWT, cookies or unredacted request captures to this public repo. Store these text-only, sanitized findings instead. Avoid copying or decoding the actual token using third-party sites.
+
+**Next exercise:** select History row 59, inspect the full login request path and status in ZAP, and provide only a redacted screenshot if further review is needed. Then create User B and prepare baseline User A vs. User B object access for API1 (BOLA).
