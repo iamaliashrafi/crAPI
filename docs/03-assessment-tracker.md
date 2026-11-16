@@ -4,7 +4,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 
 | ID | Category | Discovery status | Test status | Verified result | Evidence |
 |---|---|---|---|---|---|
-| API1 | Broken Object Level Authorization | Pending | Not tested | — | — |
+| API1 | Broken Object Level Authorization | In progress: test accounts ready; vehicle setup pending | Not tested | — | [BOLA lab plan](04-api1-bola-lab.md) |
 | API2 | Broken Authentication | Pending | Not tested | — | — |
 | API3 | Broken Object Property Level Authorization | Pending | Not tested | — | — |
 | API4 | Unrestricted Resource Consumption | Pending | Not tested | — | — |
