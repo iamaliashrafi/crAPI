@@ -58,3 +58,19 @@ In ZAP, the selected request is `GET /identity/api/v2/vehicle/vehicles` with `HT
 **Next action:** find a vehicle-specific GET request on the lab origin in ZAP History; if not present, refresh the vehicle dashboard and inspect new traffic. Capture the legitimate User B endpoint and response as a sanitized *object-level* baseline. Afterwards obtain User A's baseline and perform a controlled, read-only comparison.
 
 **Current finding status:** API1 BOLA — **Not tested (object-level cross-account access)**.
+
+## Baseline exploration B2 — ZAP Sites tree inspection (2026-11-16)
+
+**Source:** researcher-provided ZAP screenshot showing the expanded Sites tree for the authorized `http://localhost:8888` application.
+
+Under `identity → api → v2 → vehicle`, only two endpoint entries are currently visible:
+- `POST add_vehicle({vin,pincode})`
+- `GET vehicles`
+
+The latter is selected and its response contains a single User B lab vehicle, consistent with baseline B1. **No per-vehicle `GET /identity/api/v2/vehicle/<vehicleid>/location` endpoint is shown in the visited tree yet.** Absence from the Sites tree does not prove that this endpoint does not exist: the tree reflects requests ZAP has observed. This screenshot also shows `Filter: OFF` in the History tab and unrelated Google Maps/Fonts origins; these are out of assessment scope.
+
+**Official crAPI guide:** clicking **Refresh Location** on the Dashboard is documented to initiate `/identity/api/v2/vehicle/<vehicleid>/location`. Guide: https://github.com/OWASP/crAPI/blob/develop/docs/challengeSolutions.md . This is a documented expected behavior, **not yet locally observed**.
+
+**Next step:** while logged in as User B, use the application's Refresh Location function (scroll around the vehicle location UI if needed), then locate the new GET in ZAP History. If the control is missing in this deployment, use ZAP Requester to construct an authorized read-only baseline against **User B's own vehicle**, retaining User B's existing authenticated session and avoiding all third-party domains. Do not yet test cross-user access. Redact JWTs, UUIDs, PINs, VINs and precise location data from any published evidence.
+
+**Finding status:** no cross-account request or BOLA finding confirmed.
