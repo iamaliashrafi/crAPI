@@ -90,3 +90,9 @@ The latter is selected and its response contains a single User B lab vehicle, co
 - **Note:** User A does not strictly require a car to test whether its authenticated identity can access B's car, though separate vehicles can enrich later bidirectional testing.
 
 **Finding status:** User B location baseline confirmed; cross-account authorization test pending.
+
+## BOLA test preparation B4 — copied User B location request into ZAP Requester (2026-11-16)
+
+The researcher supplied a new screenshot of ZAP's Requester tab showing a copied `GET /identity/api/v2/vehicle/<USER_B_VEHICLE_UUID>/location` request. The request currently carries User B's `Authorization: Bearer <REDACTED>` header and, in the response panel, the previously captured HTTP `200 OK` with User B location/account fields. The Requester footer indicates `Time: 0 ms` and `Body Length: 0` for the current editor operation, so there is **no evidence yet of a newly submitted modified request**.
+
+**Next step:** Keep the Requester tab with the User B vehicle URL. Authenticate as User A in the browser; in ZAP History locate a recent User A authenticated dashboard or vehicle request, copy only its Bearer token locally and substitute it for User B's Bearer token in Requester. To isolate bearer-based authorization, remove the copied `chat_session` Cookie header if present. Keep method, host and User B vehicle path unchanged. Submit only one read-only GET to the local lab. Record response code and redacted response fields; an HTTP 200 is not sufficient on its own to claim BOLA unless User B's protected data is actually disclosed. No secrets or raw screenshots are published.
