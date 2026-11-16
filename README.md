@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — API1 BOLA confirmed in local lab; API2–API10 not tested.  
+**Project status:** In progress — API1 BOLA and API3 Excessive Data Exposure confirmed in the authorized local lab; API2 controls tested (no confirmed bypass); API4–API10 pending.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -54,6 +54,12 @@ Manual evidence takes precedence over unverified scanner alerts. Use test accoun
 
 ZAP intercepts local crAPI API traffic. Two researcher-owned test accounts (`TesterA`, `TesterB`) were created and authenticated, and a lab vehicle was attached to TesterB. A legitimate vehicle-location request was recorded, followed by a cross-account request using TesterA's token for TesterB's vehicle. The initial HTTP `200 OK` and TesterB data were observed in a ZAP screenshot; the researcher reports independently confirming the token/cookie isolation and reproducing the disclosure. This is documented as an API1 BOLA finding in the **intentionally vulnerable lab**. See [detailed evidence](findings/API01-BOLA.md) and [lab journal](docs/04-api1-bola-lab.md).
 
+
+## API3 discovery update (2026-11-16)
+
+An authorized read-only check of the Community Forum post-feed endpoint returned other authors' `email` and `vehicleid` properties to both TesterB and TesterA sessions, although those values are not displayed in the Forum UI. This local lab result is documented in the [API3 finding](findings/API03-EXCESSIVE-DATA-EXPOSURE.md) and [API3 journal](docs/06-api3-bopla-lab.md). Severity remains provisional; no downstream vehicle exploit chain was performed using the identifiers from these responses.
+
+**API2 note:** Controlled invalid/valid OTP recovery and an attempt-limit response were observed, but JWT invalidation remains unverified. See the [API2 journal](docs/05-api2-broken-authentication-lab.md).
 
 ## References
 
