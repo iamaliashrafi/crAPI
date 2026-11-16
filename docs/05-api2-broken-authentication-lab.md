@@ -102,3 +102,25 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Security interpretation:** A four-digit decimal OTP provides at most 10,000 possibilities. Weakness depends on controls such as strict throttling/lockout, expiration, account/transaction binding and one-time use. None has yet been assessed. No API2 vulnerability has been confirmed.
 
 **Next step:** Return to the research-owned TesterB password recovery form and map the next API endpoint with ZAP. If an OTP form is available, perform only a single wrong-code negative-control attempt and inspect its request/response; do not brute-force or automate attempts. A legitimate correct-code flow may follow.
+
+## API2 negative control A3 — invalid OTP rejected, HTTP 500 returned (2026-11-16)
+
+**Source:** Researcher-provided screenshot showing ZAP History entry **204** for a single invalid OTP submission against the research-controlled TesterB account.
+
+| Property | Observed |
+|---|---|
+| Method | `POST` |
+| Path | `/identity/api/auth/v3/check-otp` |
+| Host | `http://localhost:8888` |
+| Request format | `application/json` |
+| Request keys | `email`, `otp`, `password` (all values intentionally redacted) |
+| Response HTTP status | `500 Internal Server Error` |
+| Response body (sanitized) | `{"message":"Invalid OTP! Please try again..","status":500}` |
+
+**Result:** The tested incorrect OTP was *rejected* by the application's response. The HTTP 500 status is semantically inappropriate for an expected invalid-code condition, suggesting improper error-status mapping / error handling. It does **not** by itself show that authentication was bypassed, that the server crashed, or that attempt limits are missing. Whether the password remained unchanged is not yet independently verified by a subsequent login check.
+
+**Sensitive data:** the screenshot includes a test password, an OTP attempt and a cookie; the raw image is **not** uploaded to this public repository. Do not paste those secrets or session identifiers into further reports.
+
+**Next step:** Establish an authorized **valid OTP baseline** with TesterB's own current OTP from local MailHog, choosing a new lab-only password. If the previous code has expired, initiate one new password-recovery request and use that newly generated OTP. Capture ZAP Request/Response metadata and report the resulting status without exposing the OTP, password or cookie. Then confirm the new password works for TesterB only. Review limited negative tests and expiry / single-use separately; no automated OTP guessing.
+
+**API2 finding status:** No Broken Authentication flaw confirmed. Invalid OTP rejection observed; potential error-handling quality issue to document separately if reproducible.
