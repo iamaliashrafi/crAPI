@@ -147,3 +147,22 @@ References:
 **Next minimum action:** In the researcher's local MailHog, find the newly generated phone-change OTP for TesterA (do not share or commit its value), enter it in the ordinary crAPI verification form, then inspect the next POST request in ZAP for actual confirmation endpoint and request keys. This baseline may update the researcher's disposable test phone number after successful verification; ensure the value is owned/reversible and note the account's resulting state. Do not modify request bodies or include unapproved properties until this baseline is understood.
 
 **Sensitive evidence:** The screenshot exposes a bearer JWT, session cookie, and test phone numbers. Never upload this raw screenshot to a public GitHub or portfolio page. Preserve only redacted field names, endpoint, response status and sanitized interpretation.
+
+## API3 phone-change positive baseline B6 — phone OTP verification succeeded (2026-11-16)
+
+**Evidence:** Researcher-supplied ZAP Request/Response screenshot for the researcher-owned TesterA account on local `http://localhost:8888`.
+
+| Item | Observation |
+|---|---|
+| Request | `POST /identity/api/v2/user/verify-phone-otp` |
+| Request header | `Authorization: Bearer` present; token not retained |
+| Request content type | `application/json` |
+| Request JSON keys | `old_number`, `new_number`, `otp` (all values redacted) |
+| HTTP response | `200 OK` |
+| Response body | `{"message":"Phone number change is successful","status":200}` |
+
+**Interpretation:** The application reports that the normally authorized OTP-confirmed phone change succeeded. This is a **positive baseline** for an allowed property update, **not evidence of Mass Assignment**. The account's persisted phone number has not yet been independently verified from a fresh profile read or authenticated user-dashboard response.
+
+**Next single action:** Revisit `/my-profile` as TesterA or inspect a fresh `GET /identity/api/v2/user/dashboard` in ZAP. Verify that `phone` now shows the new test number and examine which other profile properties are returned, without recording their values. This gives a reliable persisted-state baseline and reveals candidate property names for a later controlled extra-field test. Do not add arbitrary attributes or replay this already consumed OTP in the baseline phase.
+
+**Security / disclosure:** The raw screenshot contains a complete JWT, session cookie, lab OTP and test phone numbers. Do not publish the screenshot or its secret values in GitHub/Upwork/LinkedIn. This report retains only field names and sanitized response metadata.
