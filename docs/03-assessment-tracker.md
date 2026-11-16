@@ -5,7 +5,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 | ID | Category | Discovery status | Test status | Verified result | Evidence |
 |---|---|---|---|---|---|
 | API1 | Broken Object Level Authorization | Completed: authorized B baseline + cross-account GET + researcher-verified repeat | **Confirmed in lab (researcher-verified)** | TesterA token requested TesterB location; HTTP 200 + TesterB private fields; first attempt screenshot, retest reported | [Lab journal](04-api1-bola-lab.md), [Confirmed finding](../findings/API01-BOLA.md) |
-| API2 | Broken Authentication | Recovery OTP, invalid/valid controls, password reset, old-password check and replay test + post-replay login captured | Testing in progress | Replay #236 returned 500 Invalid OTP; login #237 accepted a password also seen in #236; whether #235 and #236 used different passwords is unverified, so replay side effects unresolved; no auth bypass confirmed | [API2 lab journal](05-api2-broken-authentication-lab.md) |
+| API2 | Broken Authentication | OTP reset, wrong/valid controls, replay #236, post-replay login observations | Testing in progress | #236 returned 500 Invalid OTP; login #237 with P2 was 200, and P1 from #235 reportedly also works; current simultaneous validity not yet independently established | [API2 lab journal](05-api2-broken-authentication-lab.md) |
 | API3 | Broken Object Property Level Authorization | Pending | Not tested | — | — |
 | API4 | Unrestricted Resource Consumption | Pending | Not tested | — | — |
 | API5 | Broken Function Level Authorization | Pending | Not tested | — | — |
