@@ -191,3 +191,25 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Next controlled check — single-use OTP:** Use the prior successful `check-otp` request (History `206`) in ZAP Requester, retaining the same previously consumed OTP and the same research-owned account, but set a different new lab-only password. Send **once** to test replay protection. A denial is expected. If a success response is observed, check which password actually authenticates before claiming replay or unauthorized password reset. No brute force or automation is necessary.
 
 **Current status:** API2 assessment remains in progress. No demonstrated authentication bypass; old password correctly rejected. OTP replay, expiry, rate limiting, and older JWT/session invalidation not yet assessed.
+
+## API2 negative control A7 — previously accepted OTP rejected on repeat (2026-11-16)
+
+**Evidence:** Researcher-supplied screenshot of OWASP ZAP Requester and History, on the self-hosted crAPI lab (`http://localhost:8888`).
+
+- History **232**: a fresh `POST /identity/api/auth/forget-password` returned `HTTP 200`.
+- History **235**: `POST /identity/api/auth/v3/check-otp` returned `HTTP 200` (successful verification in the immediately preceding password-recovery flow); the selected response for 235 is not visible in the screenshot, but the History status is.
+- History **236**: Source `Manual`, `POST /identity/api/auth/v3/check-otp`, returned `HTTP 500` roughly **30 seconds after** entry 235; Requester response text: `{"message":"Invalid OTP! Please try again..","status":500}`.
+- The Requester body includes an `email`, a four-digit `otp`, and `password`. The actual values are deliberately omitted. The researcher followed instructions to reuse an already accepted OTP. The screenshot **does not independently show the full request body for 235**, so exact code equivalence and whether the two supplied passwords differed are not independently proven.
+- This suggests the used OTP was **rejected on the second attempt**, consistent with one-time use. **However**, without verifying the post-test account password and the expiry policy, an expiry-based rejection or another state-dependent failure cannot be fully excluded. Do not treat this as independently proven single-use enforcement.
+- As in A3, predictable invalid OTP states return `HTTP 500`; this is an error-response semantics issue, **not** evidence of password-reset bypass, service crash, or absent rate limits.
+- **No API2 authentication bypass is confirmed.** Strong negative-control result, pending validation of whether the replay caused any password change.
+
+### Next controlled verification
+
+1. Log in to TesterB with the password chosen in the **first successful** reset transaction (History 235), confirming the account still accepts it.
+2. If a **different** password was submitted in the replay (History 236), try that replay password **once**: expected `401` and no JWT; this checks that the 500 response did not silently change the password.
+3. If both requests used the same password, the replay experiment cannot confirm password non-modification; repeat with a newly issued OTP and two deliberately distinct lab-only passwords if a stronger finding is required. No guessing or automated attempts are necessary.
+
+### Evidence hygiene
+
+The source screenshot exposes a lab OTP, lab password, account email and `chat_session_id` cookie. Do not upload it unchanged to the public GitHub repository. Only this redacted textual summary has been saved.
