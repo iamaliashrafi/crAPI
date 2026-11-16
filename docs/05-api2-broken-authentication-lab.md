@@ -169,3 +169,25 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Next controlled check:** Log out of TesterB and try **one** login with its prior lab password. An HTTP `401` (or equivalent controlled denial) would show the old password is rejected. Return to login with the new password afterward. After this check, separately test whether the used recovery OTP can be reused using a new distinct test password (without large-scale guessing), and inspect the result carefully.
 
 **API2 status:** Assessment in progress. No broken-authentication vulnerability confirmed.
+
+## API2 negative control A6 — old password rejected after reset (2026-11-16)
+
+**Evidence:** Researcher-supplied screenshot of a single unsuccessful login using the old lab password after a verified reset of TesterB's password.
+
+| Property | Observed |
+|---|---|
+| ZAP History ID | `231` |
+| HTTP request | `POST /identity/api/auth/login` |
+| Host | `http://localhost:8888` |
+| Request body | `email` and `password` (values excluded for privacy) |
+| HTTP response | `401 Unauthorized` |
+| Response message | `Invalid Credentials` |
+| Response token field | `null` |
+
+**Interpretation:** The earlier password was rejected in this specific authentication attempt; no new JWT was issued. In conjunction with a successful login using the new password (History `207`), this supports that the account's password was changed and the old password is no longer accepted. This **does not** establish that existing sessions or already-issued JWTs were revoked; that is a separate test.
+
+**Evidence precautions:** The uploaded screenshot displays the earlier test password and `chat_session_id`; do not upload the original image to this public repository. The log stores only sanitized metadata.
+
+**Next controlled check — single-use OTP:** Use the prior successful `check-otp` request (History `206`) in ZAP Requester, retaining the same previously consumed OTP and the same research-owned account, but set a different new lab-only password. Send **once** to test replay protection. A denial is expected. If a success response is observed, check which password actually authenticates before claiming replay or unauthorized password reset. No brute force or automation is necessary.
+
+**Current status:** API2 assessment remains in progress. No demonstrated authentication bypass; old password correctly rejected. OTP replay, expiry, rate limiting, and older JWT/session invalidation not yet assessed.
