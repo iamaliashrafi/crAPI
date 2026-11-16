@@ -126,3 +126,24 @@ References:
 **Next minimal action:** Enter a dedicated, non-routable lab test phone value in TesterA's own session, click **Send OTP for verification** once, and capture the resulting actual network request and response via ZAP. Do not complete the verification or modify request properties until the request's purpose and fields are understood. If the app or environment could send real SMS, use a controlled test number only and avoid third-party recipients.
 
 **Evidence policy:** Redact phone, authorization headers, OTPs and session cookies from any shared screenshot and all public commits.
+
+## API3 phone-change baseline B5 — OTP initiation request captured (2026-11-16)
+
+**Evidence:** Researcher-provided ZAP Request/Response screenshot from the researcher-owned TesterA profile flow on their local crAPI lab.
+
+| Property | Observed |
+|---|---|
+| Method | `POST` |
+| Path | `/identity/api/v2/user/change-phone-number` |
+| Target | `http://localhost:8888` |
+| Authorization | Bearer JWT header present (full token not retained) |
+| Request Content-Type | `application/json` |
+| JSON request keys | `old_number`, `new_number` (actual values omitted) |
+| HTTP response | `200 OK` |
+| Response summary | Server says OTP was sent to the test account's email and can be read through local MailHog; it echoes the requested new number in the message (actual value omitted) |
+
+**Interpretation:** The observed `200` is **OTP initiation**, not evidence of an actual phone update. The user interface shows a separate second-stage OTP verification step. This request alone does not indicate a mass-assignment vulnerability, and guessing an additional writable property before observing the final verification request could mischaracterize the flow.
+
+**Next minimum action:** In the researcher's local MailHog, find the newly generated phone-change OTP for TesterA (do not share or commit its value), enter it in the ordinary crAPI verification form, then inspect the next POST request in ZAP for actual confirmation endpoint and request keys. This baseline may update the researcher's disposable test phone number after successful verification; ensure the value is owned/reversible and note the account's resulting state. Do not modify request bodies or include unapproved properties until this baseline is understood.
+
+**Sensitive evidence:** The screenshot exposes a bearer JWT, session cookie, and test phone numbers. Never upload this raw screenshot to a public GitHub or portfolio page. Preserve only redacted field names, endpoint, response status and sanitized interpretation.
