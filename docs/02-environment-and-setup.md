@@ -146,3 +146,18 @@ The screenshot supplied by the researcher shows ZAP History item **72** capturin
 **Evidence security:** Screenshot contains lab credentials and test-user details; do **not** commit the original screenshot or a raw request to the public repo. The relevant HTTP metadata and sanitized response are sufficient.
 
 **Next step:** Log in to User B, verify a `POST /identity/api/auth/login` HTTP `200` response and dashboard identity, then identify one user-owned resource per account for an API1 BOLA baseline test.
+
+## Session 0 — second account authenticated (2026-11-16)
+
+**Source:** researcher-provided screenshot of ZAP + crAPI dashboard.
+
+- The browser shows authenticated dashboard for `TesterB`.
+- ZAP History entry 73: `POST` request to an `/identity/api/auth/l...` path, HTTP `200`. Given earlier verification, this is consistent with successful User B login, though the full path is truncated in the screenshot.
+- ZAP History entry 75 (selected): `POST /identity/api/auth/verify`, HTTP `200`. The JSON response reports the JWT is valid.
+- Other authenticated user/vehicle GET requests are visible in ZAP history.
+- Both TesterA and TesterB have now been independently observed accessing their own dashboards.
+- The selected request body contains a JWT. Do not publish the raw screenshot or token.
+
+**Assessment status:** preparation for API1:2023 BOLA is in progress; no BOLA result has been tested or confirmed yet.
+
+**Next step:** connect a lab vehicle to TesterB using its own VIN and PIN from the local MailHog inbox, then capture a legitimate vehicle-related API request as the baseline. Repeat for TesterA before comparing object-level access.
