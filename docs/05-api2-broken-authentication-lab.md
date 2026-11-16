@@ -326,3 +326,13 @@ The researcher also tested the different password **P2** from attempted OTP repl
 **API-response quality note:** Returning `503` for an expected attempt cap and `500` for invalid inputs/subsequent errors appears semantically inappropriate; `429 Too Many Requests` with appropriate retry guidance would generally better describe a request-rate limit. The internal cause of `ERROR..` is not established.
 
 **Action:** Stop this fuzz sequence; preserve sanitized results. Continue testing separate authentication controls (e.g. whether earlier JWTs remain valid after password reset) only using researcher-owned accounts and tightly controlled requests. Do not interpret `500` alone as a server crash.
+
+## API2 A14 — pre/post password-reset JWT invalidation (planning, 2026-11-16)
+
+The researcher confirmed that a previously captured `GET /identity/api/v2/user/dashboard` request (History **208**) contains an `Authorization: Bearer ...` header. **No JWT value was shared or stored.**
+
+**Timing distinction:** History 208 follows login History 207, which occurred **after** the earlier password reset. Thus History 208 cannot independently establish whether tokens from **before that reset** were invalidated; a chronological pre-reset token is needed.
+
+**Planned control:** Log in with the research-owned TesterB test account to get a fresh token. Capture one successful authenticated dashboard GET and keep the entire request as a private **pre-reset baseline** in ZAP Requester. Perform one legitimate password reset using a newly issued OTP, then replay the same dashboard GET **without replacing its old Bearer token**. Compare pre/post reset HTTP status, response content and whether private data remains accessible. An HTTP 200 after reset may signal missing token/session revocation but should be assessed in light of the application's intended policy and token lifetime before assigning a security finding.
+
+**Current status:** Test not run; no JWT invalidation result or vulnerability confirmed. Do not upload JWTs or original unredacted request screenshots to GitHub.
