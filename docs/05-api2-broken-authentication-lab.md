@@ -88,3 +88,17 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Evidence handling:** The source screenshot includes the full test email and a `chat_session_id` cookie. Do not commit the original screenshot or copy session identifiers, reset codes, or reset links into the repository.
 
 **Next practical step:** Open the *local* MailHog interface at `http://localhost:8025` and locate the new password-reset message addressed to research-controlled TesterB. Confirm its existence, without sending the actual OTP or full reset link to public reports. Return to crAPI, observe the legitimate OTP/verification step and corresponding ZAP requests; do not perform guessing or automated attempts.
+
+## API2 baseline A2 — OTP received in local MailHog (2026-11-16)
+
+**Source:** Researcher-supplied screenshot of MailHog at `http://localhost:8025`.
+
+- Local MailHog is connected and displays a test email with subject `crAPI OTP`.
+- Recipient: research-owned TesterB test mailbox (full email deliberately omitted).
+- The message contains a **four-digit numeric OTP**, confirming delivery after `POST /identity/api/auth/forget-password` returned HTTP `200` (History `202`).
+- Do **not** upload the original screenshot: it exposes the active OTP and test email.
+- Neither the OTP itself, reset link, account email, nor MailHog message headers are stored here.
+
+**Security interpretation:** A four-digit decimal OTP provides at most 10,000 possibilities. Weakness depends on controls such as strict throttling/lockout, expiration, account/transaction binding and one-time use. None has yet been assessed. No API2 vulnerability has been confirmed.
+
+**Next step:** Return to the research-owned TesterB password recovery form and map the next API endpoint with ZAP. If an OTP form is available, perform only a single wrong-code negative-control attempt and inspect its request/response; do not brute-force or automate attempts. A legitimate correct-code flow may follow.
