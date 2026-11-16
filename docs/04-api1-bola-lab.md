@@ -96,3 +96,20 @@ The latter is selected and its response contains a single User B lab vehicle, co
 The researcher supplied a new screenshot of ZAP's Requester tab showing a copied `GET /identity/api/v2/vehicle/<USER_B_VEHICLE_UUID>/location` request. The request currently carries User B's `Authorization: Bearer <REDACTED>` header and, in the response panel, the previously captured HTTP `200 OK` with User B location/account fields. The Requester footer indicates `Time: 0 ms` and `Body Length: 0` for the current editor operation, so there is **no evidence yet of a newly submitted modified request**.
 
 **Next step:** Keep the Requester tab with the User B vehicle URL. Authenticate as User A in the browser; in ZAP History locate a recent User A authenticated dashboard or vehicle request, copy only its Bearer token locally and substitute it for User B's Bearer token in Requester. To isolate bearer-based authorization, remove the copied `chat_session` Cookie header if present. Keep method, host and User B vehicle path unchanged. Submit only one read-only GET to the local lab. Record response code and redacted response fields; an HTTP 200 is not sufficient on its own to claim BOLA unless User B's protected data is actually disclosed. No secrets or raw screenshots are published.
+
+## Cross-account experiment B5 — potential BOLA reproduced once (2026-11-16)
+
+**Researcher-supplied screenshot:** ZAP Requester now shows an executed manual request, History **199**:
+- Source: `Manual`
+- Method: `GET`
+- URL: `http://localhost:8888/identity/api/v2/vehicle/<USER_B_VEHICLE_UUID>/location`
+- Response: `HTTP/1.1 200 OK`; JSON response body **177 bytes**; Requester reports **30 ms** elapsed
+- Sanitized response contains `"carId":"<USER_B_VEHICLE_UUID>"`, `"vehicleLocation": {"latitude":"<REDACTED>","longitude":"<REDACTED>"}`, `"fullName":"TesterB"`, and `"email":"<REDACTED>"`.
+- The same screenshot also shows prior successful authentication sequence, History entries 193 (login), 195 (JWT verify), 196 (user dashboard), and 197 (vehicle list with a 2-byte empty response), consistent with a session switch from TesterB to TesterA.
+- In the preceding interaction, the researcher was instructed to replace User B's bearer token in the Requester with User A's bearer token, remove the copied `chat_session` cookie, and keep User B's vehicle URL unchanged.
+
+**Security interpretation:** If History 199 was sent exclusively with User A's authentication context and without User B's remaining credentials, returning User B's private location, name and email represents **API1:2023 BOLA**. It is presently a **strong candidate / confirmation pending**, since a static screenshot cannot independently establish token ownership, absence of all B session material, or a second independent reproduction. Do **not** label this finding definitively confirmed, assign a CVSS score, or claim remediation has occurred.
+
+**Next decisive verification:** In Requester, verify that the target path still belongs to B, and that the only authentication credential being sent is a valid token from TesterA. Remove the `Cookie:` header if it is present. Reissue one read-only GET against the same local lab endpoint. Compare response body and document outcome with all sensitive values replaced. Optional stronger control: verify User A token on `GET /identity/api/v2/user/dashboard` before the B request, without disclosing token values.
+
+**Evidence disclosure warning:** the screenshot shows a JWT and precise location information in plaintext. Do not upload this raw screenshot or copy secrets into this public repository.
