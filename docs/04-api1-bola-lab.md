@@ -1,6 +1,6 @@
 # API1:2023 — Broken Object Level Authorization (BOLA)
 
-**Stage:** preparation / baseline collection. **No vulnerability confirmed.**
+**Current stage:** **Confirmed BOLA finding** (2026-11-16) based on an observed cross-account HTTP 200 response and the researcher's verified second request. Earlier sections document what was known *at that stage* and should be read as a chronological test journal. See [confirmed finding](../findings/API01-BOLA.md).
 
 ## Learning objective
 
@@ -113,3 +113,8 @@ The researcher supplied a new screenshot of ZAP's Requester tab showing a copied
 **Next decisive verification:** In Requester, verify that the target path still belongs to B, and that the only authentication credential being sent is a valid token from TesterA. Remove the `Cookie:` header if it is present. Reissue one read-only GET against the same local lab endpoint. Compare response body and document outcome with all sensitive values replaced. Optional stronger control: verify User A token on `GET /identity/api/v2/user/dashboard` before the B request, without disclosing token values.
 
 **Evidence disclosure warning:** the screenshot shows a JWT and precise location information in plaintext. Do not upload this raw screenshot or copy secrets into this public repository.
+
+
+## Final BOLA verification — 2026-11-16
+
+The researcher reported completing the requested isolation checks: the JWT in the cross-account Requester request matched **TesterA**'s bearer token, there was no authentication cookie from **TesterB**, the target remained **TesterB**'s vehicle, and a second read-only GET again returned HTTP `200 OK` with TesterB location/identity data. The first cross-account response was visible in ZAP History entry `199`; a separate screenshot of the repeat has **not** been submitted. Therefore this is recorded as **Confirmed by researcher in authorized lab; repeat independently documented in text only**. A sanitized follow-up screenshot may be added later for portfolio evidence. No remediation has been implemented or verified.
