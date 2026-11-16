@@ -113,3 +113,20 @@ A new researcher-provided screenshot shows the crAPI **Dashboard** for researche
 **Information handling:** the screenshot exposes an active-looking JWT in the ZAP request body. Never commit the screenshot, JWT, cookies or unredacted request captures to this public repo. Store these text-only, sanitized findings instead. Avoid copying or decoding the actual token using third-party sites.
 
 **Next exercise:** select History row 59, inspect the full login request path and status in ZAP, and provide only a redacted screenshot if further review is needed. Then create User B and prepare baseline User A vs. User B object access for API1 (BOLA).
+
+## Session 0 — successful login request confirmed (2026-11-16)
+
+A researcher-provided screenshot displays ZAP History **ID 59** selected, with the full login HTTP transaction:
+
+- Method: `POST`
+- URL path: `/identity/api/auth/login` on the authorized `http://localhost:8888` crAPI lab
+- Request content type: `application/json`
+- Observed server response: `HTTP/1.1 200` and `Content-Type: application/json`
+- The response JSON includes a field named `token` containing a JWT (the actual token value **is not recorded**).
+- The user's browser displays the authenticated crAPI dashboard for researcher-owned User A / TesterA.
+
+**Conclusion:** a valid test-account login was observed, and the API issued a JWT. This does **not** demonstrate object-level authorization, and no vulnerability is confirmed.
+
+**Evidence handling:** the original screenshot reveals a test-only password and a potentially live JWT; it must not be added unredacted to this public repository or to portfolio posts. Do not store raw login payloads, cookies or JWTs in GitHub.
+
+**Next milestone:** create a second researcher-owned account (User B) using a separate session or by logging out; capture a sanitized success summary, then identify a resource owned by User B and establish authorized baseline requests for API1:2023 BOLA.
