@@ -41,3 +41,20 @@ In ZAP, the selected request is `GET /identity/api/v2/vehicle/vehicles` with `HT
 - [OWASP API1:2023 — BOLA](https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization/)
 - [OWASP crAPI challenges](https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md)
 - [OWASP crAPI lab guide (vehicle setup)](https://github.com/OWASP/crAPI/blob/develop/docs/challengeSolutions.md)
+
+## Baseline evidence B1 — authenticated vehicle list (2026-11-16)
+
+**Source:** screenshot of the researcher's own local ZAP session. ZAP History entry **181** is selected.
+
+- Request: `GET /identity/api/v2/vehicle/vehicles HTTP/1.1` on `http://localhost:8888`.
+- Authentication: an `Authorization: Bearer <REDACTED>` header is visible. The surrounding session indicates User B (`TesterB`), but the exact JWT identity was not independently decoded or validated.
+- Response: `HTTP/1.1 200 OK` with `application/json`.
+- Response body: JSON array containing **one** vehicle object with keys resembling `id`, `uuid`, `pincode`, `vin`, `year`, `status`, `previousOwners`, `model`, `vehiclecompany`, `vehicle_img`, `vehiclelocation`, and `owner`. The displayed record has `status: "INACTIVE"` and `owner: null`.
+- One lab Mercedes-Benz GLA Class (2026) is visible in prior screenshots.
+- **Sanitized interpretation:** User B's session can fetch a populated vehicle list; this does **not** demonstrate unauthorized access.
+- **Important:** the raw screenshot reveals an active-looking bearer token, session material, VIN, PIN, UUID and exact vehicle coordinates. It must NOT be uploaded as-is, embedded in README files, or copied into public reports. None of those values have been saved here.
+- **Limitations:** this endpoint lists vehicles, but does not alone prove access to a specific object by its ID. No `GET /identity/api/v2/vehicle/<ID>/location` response has yet been observed. The earlier `[]` response has been superseded by a newly observed single-record response, without claiming when the vehicle was attached.
+
+**Next action:** find a vehicle-specific GET request on the lab origin in ZAP History; if not present, refresh the vehicle dashboard and inspect new traffic. Capture the legitimate User B endpoint and response as a sanitized *object-level* baseline. Afterwards obtain User A's baseline and perform a controlled, read-only comparison.
+
+**Current finding status:** API1 BOLA — **Not tested (object-level cross-account access)**.
