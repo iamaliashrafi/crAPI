@@ -64,3 +64,17 @@ A subsequent user-provided screenshot shows a Context named `crAPI-Lab` in the Z
 **Verified:** Context name is created and visible. **Not yet independently verified from this screenshot:** the Context's `In Scope` checkbox and complete include/exclude rules. Verify before any active scanning; other internet origins present in Sites are out of scope.
 
 **Next action assigned:** create first researcher-controlled test account (User A) through the crAPI Signup form; inspect the resulting POST request in ZAP History without exposing credentials or tokens. User B will follow after the first signup is verified.
+
+## Session 0 — first signup API validation (2026-11-16)
+
+**Evidence:** a researcher-supplied screenshot of crAPI Signup alongside ZAP Request & Response. **Do not upload the raw screenshot:** it contains a plaintext test-account password, so retain only this sanitized account-free summary.
+
+- **HTTP method:** `POST`
+- **Request path:** `/identity/api/auth/signup`
+- **Target:** `http://localhost:8888` (authorized local crAPI lab)
+- **Observed response:** `HTTP/1.1 400`, `Content-Type: application/json`
+- **Sanitized error summary:** `Validation failed` for `signUpForm.number`; validation message `must not be blank`.
+- **Diagnosis:** the phone-number input was left blank and the `number` property was submitted as an empty string. Server-side request validation rejected the incomplete form.
+- **Security finding?** **No.** This is expected form input validation, not evidence of an API vulnerability.
+- **Follow-up:** use a fictitious test number, change the exposed test password and retry registration. Confirm success via a new request and response; do not assume the outcome.
+- **Disclosure practice:** Never commit credentials, cookies, bearer tokens, or raw screenshots containing passwords; redact before sharing.
