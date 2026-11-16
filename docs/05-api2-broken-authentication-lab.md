@@ -256,3 +256,27 @@ The researcher also tested the different password **P2** from attempted OTP repl
 6. Do not commit test secrets, ZAP session files, complete reset links or unredacted screenshots. Report results only after actual execution.
 
 **References:** [ZAP Fuzzer](https://www.zaproxy.org/docs/desktop/addons/fuzzer/), [ZAP Fuzzer dialog](https://www.zaproxy.org/docs/desktop/addons/fuzzer/dialogue/), [ZAP Fuzzer options](https://www.zaproxy.org/docs/desktop/addons/fuzzer/options/), [OWASP MFA guidance](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html).
+
+## API2 controlled fuzz A11 — 12 invalid OTP attempts completed (2026-11-16)
+
+**Evidence:** Researcher-provided OWASP ZAP **Fuzzer** results screenshot on the authorized, self-hosted crAPI lab `localhost:8888` for the research-owned TesterB test account. Only the four-digit `otp` request value was selected as the fuzz location; the previous configuration screenshot showed one location and 12 payloads.
+
+| Metric | Screenshot observation |
+|---|---|
+| Target | `POST /identity/api/auth/v3/check-otp` |
+| Fuzzed requests | **12** (Task IDs 1–12; Task ID 0 is the Original baseline) |
+| Fuzzer progress | 100%; no current fuzzers |
+| Transport errors | **0** |
+| HTTP 500 among fuzzed requests | **11** |
+| HTTP 503 among fuzzed requests | **1** (Task ID **9**) |
+| HTTP 200 among fuzzed requests | **0** |
+| Original task 0 | HTTP 500, response body 58 bytes |
+| Fuzzed Task IDs 1–8 | HTTP 500, response body 58 bytes |
+| Fuzzed Task ID 9 | HTTP 503, response body **66 bytes** |
+| Fuzzed Task IDs 10–12 | HTTP 500, response body **34 bytes** |
+
+**Interpretation:** The backend response pattern changed mid-run (500/58 bytes → 503/66 bytes → 500/34 bytes). This may indicate OTP-attempt throttling or another application/backend condition, but **HTTP 503 and response size alone do not prove rate limiting or account lockout**. Likewise, there is no successful OTP verification in these 12 attempts. Inspect the **actual response body and headers for Task ID 9** before classifying the outcome, then compare with Task ID 10. Do not run more attempts until the cause is understood.
+
+**Current security status:** Rate-limiting behavior **under investigation**; no confirmed unthrottled brute force or OTP bypass. Predictable invalid OTP responses using HTTP 500 remain an API error-handling concern.
+
+**Evidence hygiene:** Screenshot shows a test email, test password, session cookie and one invalid OTP in application panes. Do not publish the raw screenshot; this journal preserves only sanitized metrics, omitting all payload values, account identifiers, and credentials.
