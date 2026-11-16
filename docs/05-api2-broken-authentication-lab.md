@@ -147,3 +147,25 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Current security outcome:** API2 assessment **in progress**; no broken-authentication vulnerability confirmed. Attempt throttling, code expiry, replay protection, reset binding to account, and invalidation of earlier sessions still need controlled evaluation.
 
 **Disclosure policy:** The original screenshot includes an actual recovery code, test password, mailbox and session cookie. Do **not** upload that image unredacted to GitHub, Upwork or LinkedIn. No real code, password, cookie or email address is stored in this report.
+
+## API2 positive control A5 — Login with newly reset password succeeds (2026-11-16)
+
+**Evidence:** Researcher-provided ZAP screenshot, History entry **207**, showing the login transaction for the researcher-owned TesterB account *after* OTP verification / password reset.
+
+| Item | Observation |
+|---|---|
+| Method | `POST` |
+| Endpoint | `/identity/api/auth/login` |
+| Target | `http://localhost:8888` (authorized local lab) |
+| Request type | `application/json`, with `email` and `password` fields (values redacted) |
+| Response status | `HTTP/1.1 200 OK` |
+| Response fields | `token` JWT (value redacted), `message: "Login successful"`, `mfaRequired: false` |
+| Related history | Subsequent authenticated `/identity/api/v2/user/dashboard` requests and auth verification succeeded with HTTP `200`. |
+
+**Interpretation:** The newly chosen lab password works for TesterB and the API issued an authentication token. Together with A4, this supports a successful password-recovery flow. It does **not yet** prove the old password was invalidated or that the OTP cannot be replayed.
+
+**Evidence hygiene:** The original screenshot visibly contains a plaintext test password, active-looking JWT and a session cookie. It is not uploaded here; this log contains no secret values.
+
+**Next controlled check:** Log out of TesterB and try **one** login with its prior lab password. An HTTP `401` (or equivalent controlled denial) would show the old password is rejected. Return to login with the new password afterward. After this check, separately test whether the used recovery OTP can be reused using a new distinct test password (without large-scale guessing), and inspect the result carefully.
+
+**API2 status:** Assessment in progress. No broken-authentication vulnerability confirmed.
