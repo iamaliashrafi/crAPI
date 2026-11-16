@@ -1,0 +1,22 @@
+# Avoid accidental disclosure of credentials, raw captures, and local state
+.env
+.env.*
+!.env.example
+*.har
+*.session
+*.session.*
+*.zap
+*.zap.*
+*.pcap
+*.pcapng
+*.key
+*.pem
+*.p12
+*.pfx
+*.sqlite
+*.db
+.DS_Store
+__pycache__/
+node_modules/
+raw-evidence/
+secrets/
