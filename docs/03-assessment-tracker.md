@@ -5,7 +5,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 | ID | Category | Discovery status | Test status | Verified result | Evidence |
 |---|---|---|---|---|---|
 | API1 | Broken Object Level Authorization | Completed: authorized B baseline + cross-account GET + researcher-verified repeat | **Confirmed in lab (researcher-verified)** | TesterA token requested TesterB location; HTTP 200 + TesterB private fields; first attempt screenshot, retest reported | [Lab journal](04-api1-bola-lab.md), [Confirmed finding](../findings/API01-BOLA.md) |
-| API2 | Broken Authentication | Password recovery, used OTP replay, 12-request controlled OTP fuzz test completed | Testing in progress | Replay rejected: P1 works, P2 fails (researcher report); 12 fuzz requests: 11 HTTP 500, one HTTP 503 at task 9 with body size shift; rate-limit interpretation awaits actual response text | [API2 lab journal](05-api2-broken-authentication-lab.md) |
+| API2 | Broken Authentication | Password recovery, used-OTP replay and 12-request controlled OTP fuzz complete | Testing in progress | Attempt cap **observed**: fuzz Task 9 returned HTTP 503 `You've exceeded the number of attempts.`; IDs 10–12 changed to HTTP 500/34 bytes (body pending); no OTP guessing bypass confirmed | [API2 lab journal](05-api2-broken-authentication-lab.md) |
 | API3 | Broken Object Property Level Authorization | Pending | Not tested | — | — |
 | API4 | Unrestricted Resource Consumption | Pending | Not tested | — | — |
 | API5 | Broken Function Level Authorization | Pending | Not tested | — | — |
