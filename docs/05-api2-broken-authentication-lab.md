@@ -235,3 +235,15 @@ If 235 and 236 used the same password, a successful login at 237 is the expected
 **API2 assessment status:** In progress. Single replay returned HTTP 500 and `Invalid OTP` (History 236); password-state outcome unresolved. No authentication bypass or OTP replay vulnerability confirmed.
 
 **Disclosure policy:** The source screenshot contains a plaintext lab password and an issued JWT. Never upload it unredacted to this public repository. This entry contains only sanitized metadata.
+
+## API2 replay follow-up A9 — password values differed (researcher report, 2026-11-16)
+
+The researcher explicitly confirmed that the password supplied in successful OTP validation request **235** (**Password P1**) was **different** from that supplied in replay request **236** (**Password P2**). A subsequent screenshot had already shown request **237**: login with P2 returned HTTP `200 OK` and a JWT.
+
+**Important implication:** P2 was valid after the attempted replay despite entry 236 returning HTTP `500` with `Invalid OTP`. This is suspicious but **not yet conclusive proof of a replay-caused password change**, because there was no independent login verifying that request 235 had actually set P1 *before* 236 was sent. P2 also appeared in an earlier successful reset flow, so an unchanged earlier password remains a plausible alternative.
+
+**Immediate control:** Sign out, submit exactly one login using P1 (the password from request 235), and record HTTP status and whether a JWT was issued. Do not share P1/P2 values. Compare this result to the already observed HTTP 200 for P2.
+
+**Stronger follow-up if necessary:** Create a fresh OTP reset with two newly distinct lab passwords. First submit a valid OTP with P1 and **verify login with P1 before any replay**. Then replay that same consumed OTP with P2, and test both credentials (carefully one attempt each) to learn whether the second request altered the password despite a failure response. This sequencing removes the current baseline ambiguity; do not brute-force codes.
+
+**Finding status:** Suspected OTP replay/state-change issue under investigation; **not confirmed**. Keep the distinct HTTP 500 error-handling observation separate.
