@@ -303,3 +303,26 @@ The researcher also tested the different password **P2** from attempted OTP repl
 **Next step (no additional requests):** Select **Task ID 10** and inspect its response body. The 34-byte body is distinct from earlier 58-byte invalid-OTP responses; describe its exact message before deciding what happened following the threshold. Stop fuzzing pending interpretation.
 
 **Evidence safety:** Screenshot contains a plaintext lab password, an OTP guess, test email and cookie. Only the sanitized response, counts and metadata are retained in this public repository.
+
+## API2 control A13 — generic error after attempt-limit response (2026-11-16)
+
+**Evidence source:** Researcher's direct transcription of the response body after selecting **Fuzzer Task ID 10** from the previously observed controlled 12-request OTP test. Screenshot of the Fuzzer table previously showed **HTTP 500** and a **34-byte body** for Task ID 10.
+
+**Exact researcher-reported response (safe to reproduce):**
+
+```json
+{"message":"ERROR..","status":500}
+```
+
+**Correlated sequence:**
+
+- Task IDs **1–8**: HTTP `500` with 58-byte response body, matching the invalid-OTP baseline.
+- Task ID **9**: HTTP `503` with explicit `"You've exceeded the number of attempts."` message (confirmed by screenshot).
+- Task ID **10**: HTTP `500`, body `{"message":"ERROR..","status":500}` (body transcribed by researcher; HTTP status/body size visible in Fuzzer table).
+- Task IDs **11–12**: HTTP `500`, 34-byte bodies shown in Fuzzer table; **their contents have not been separately inspected**. Do not assert they are identical to Task 10.
+
+**Security interpretation:** An application-level OTP attempt cap **was explicitly reported**. A different generic error occurred in the following request. This is consistent with a change in server state after reaching an attempt threshold, but by itself **does not prove account lockout, OTP invalidation, persistence, or the mechanism/scope of throttling**. No OTP bypass or unthrottled guessing vulnerability was demonstrated in this test.
+
+**API-response quality note:** Returning `503` for an expected attempt cap and `500` for invalid inputs/subsequent errors appears semantically inappropriate; `429 Too Many Requests` with appropriate retry guidance would generally better describe a request-rate limit. The internal cause of `ERROR..` is not established.
+
+**Action:** Stop this fuzz sequence; preserve sanitized results. Continue testing separate authentication controls (e.g. whether earlier JWTs remain valid after password reset) only using researcher-owned accounts and tightly controlled requests. Do not interpret `500` alone as a server crash.
