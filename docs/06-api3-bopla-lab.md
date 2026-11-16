@@ -114,3 +114,15 @@ References:
 **Interpretation:** The profile page exposes potential update surfaces for an authorized, carefully controlled **Mass Assignment** test (API3 writable properties). The video-upload feature is located under profile, not the Community Forum view previously tested. Do not assume the existence or name of a profile-update endpoint until an actual ZAP request is observed.
 
 **Next step:** Click **Change phone number** and inspect the form without submitting changes. After observing its normal flow, locate the actual request in ZAP History, identify expected writable fields, and only then design a low-impact test using the researcher's own disposable TesterA data. No mass-assignment flaw has been tested or confirmed.
+
+## API3 profile workflow B4 — change-phone-number form observed (2026-11-16)
+
+**Evidence:** Researcher-provided screenshot of TesterA's own browser at `http://localhost:8888/change-phone-number`.
+
+**Visible behavior:** A two-step account phone-change UI: (1) **New Phone Number** text field and **Send OTP for verification** button; (2) **OTP Verification** stage not yet reached. No ZAP write request or server response for this flow has yet been captured.
+
+**Interpretation:** This is a candidate writable-property API3 surface, but neither a Mass Assignment weakness nor a bypass of OTP has been shown. The first form probably initiates verification, not necessarily the final property update; do not infer endpoint names, request field names, or server validation behavior from this UI.
+
+**Next minimal action:** Enter a dedicated, non-routable lab test phone value in TesterA's own session, click **Send OTP for verification** once, and capture the resulting actual network request and response via ZAP. Do not complete the verification or modify request properties until the request's purpose and fields are understood. If the app or environment could send real SMS, use a controlled test number only and avoid third-party recipients.
+
+**Evidence policy:** Redact phone, authorization headers, OTPs and session cookies from any shared screenshot and all public commits.
