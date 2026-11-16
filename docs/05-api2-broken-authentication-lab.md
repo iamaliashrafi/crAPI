@@ -240,3 +240,19 @@ The researcher also tested the different password **P2** from attempted OTP repl
 **Next assessment:** Controlled OTP verification rate-limit discovery on the self-hosted lab using only a small number of manual invalid attempts; do not interpret a handful of requests as proof of absent rate limiting. OTP expiry and prior-JWT invalidation are separate untested controls.
 
 **Evidence safety:** No passwords, OTPs, JWTs, cookies, or personal data are included in this public report.
+
+## Planned API2 A11 — controlled OTP guessing / rate-limit probe with ZAP Fuzzer
+
+**Status: planned, not yet executed or observed.** Researcher asks to test randomized OTPs instead of manual requests.
+
+**Authorized scope:** researcher's self-hosted OWASP crAPI on `http://localhost:8888`, research-owned TesterB account only.
+
+**Method and constraints:**
+1. Initiate one fresh, legitimate password-recovery request for TesterB. Keep the actual OTP private.
+2. Use a captured `POST /identity/api/auth/v3/check-otp` JSON request. Preserve all fields except the `otp` value, which is the only fuzz location.
+3. In ZAP, use the request's **Attack → Fuzz...** action, select only the four digit OTP value, and use a **Strings** payload generator containing at most twelve distinct 4-digit numeric test inputs, excluding the current genuine OTP.
+4. Set **1 concurrent thread**, **1000 ms request delay**, and stop if the API imposes a limit/lockout or exhibits operational instability. Do not enumerate the full 0000–9999 space, parallelize or attack other accounts.
+5. Review each response's HTTP code, sanitized message and retry/lockout indicators; compare to the existing invalid-OTP baseline (HTTP 500 with Invalid OTP). A different response such as 429 or an account lockout is noteworthy; the absence of such a response after twelve probes is **inconclusive**, not proof rate limiting is absent.
+6. Do not commit test secrets, ZAP session files, complete reset links or unredacted screenshots. Report results only after actual execution.
+
+**References:** [ZAP Fuzzer](https://www.zaproxy.org/docs/desktop/addons/fuzzer/), [ZAP Fuzzer dialog](https://www.zaproxy.org/docs/desktop/addons/fuzzer/dialogue/), [ZAP Fuzzer options](https://www.zaproxy.org/docs/desktop/addons/fuzzer/options/), [OWASP MFA guidance](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html).
