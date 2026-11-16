@@ -124,3 +124,26 @@ This repository is **public**. Store only sanitized summaries and permanently re
 **Next step:** Establish an authorized **valid OTP baseline** with TesterB's own current OTP from local MailHog, choosing a new lab-only password. If the previous code has expired, initiate one new password-recovery request and use that newly generated OTP. Capture ZAP Request/Response metadata and report the resulting status without exposing the OTP, password or cookie. Then confirm the new password works for TesterB only. Review limited negative tests and expiry / single-use separately; no automated OTP guessing.
 
 **API2 finding status:** No Broken Authentication flaw confirmed. Invalid OTP rejection observed; potential error-handling quality issue to document separately if reproducible.
+
+## API2 positive control A4 — valid OTP accepted (2026-11-16)
+
+**Evidence:** Researcher-provided OWASP ZAP screenshot (History entry **206**). The browser submits a recovery confirmation for the researcher-owned **TesterB** account.
+
+| Field | Observation |
+|---|---|
+| HTTP method | `POST` |
+| Endpoint | `/identity/api/auth/v3/check-otp` |
+| Host | `http://localhost:8888` |
+| Request Content-Type | `application/json` |
+| Request shape | `{"email":"<REDACTED>","otp":"<REDACTED>","password":"<REDACTED>"}` |
+| HTTP response status | `200 OK` |
+| Response body | `{"message":"OTP verified","status":200}` |
+| Response time in History | 114 ms |
+
+**Comparison with A3:** One deliberately invalid OTP resulted in HTTP `500` and the explicit message `Invalid OTP! Please try again..` (History **204**); the valid OTP produced HTTP `200` with message `OTP verified` (History **206**). These controls establish that the endpoint distinguishes those two code values. The `500` appears to be an unsuitable error mapping for a predictable invalid-code condition, **not evidence of an authentication bypass**.
+
+**Important limitation:** The server message confirms OTP validation; it does **not by itself verify that the password has changed**. Next, log in to TesterB with the newly selected lab-only password to confirm the account's post-reset state. Separately, if needed, check that the prior password no longer authenticates. No login evidence from after the reset has been supplied yet.
+
+**Current security outcome:** API2 assessment **in progress**; no broken-authentication vulnerability confirmed. Attempt throttling, code expiry, replay protection, reset binding to account, and invalidation of earlier sessions still need controlled evaluation.
+
+**Disclosure policy:** The original screenshot includes an actual recovery code, test password, mailbox and session cookie. Do **not** upload that image unredacted to GitHub, Upwork or LinkedIn. No real code, password, cookie or email address is stored in this report.
