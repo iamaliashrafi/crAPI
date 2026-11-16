@@ -56,3 +56,11 @@ The second user-provided screenshot shows crAPI's `/login` page next to ZAP. ZAP
 - **Next actionable step:** create the `crAPI-Lab` Context from the `http://localhost:8888` node in Sites and verify that only this local origin is included. Then proceed with test-account setup and an authenticated API request.
 - This screenshot has **not** been uploaded to the repository; the verified observations are recorded in this text.
 
+
+## Session 0 — Context creation confirmed (2026-11-16)
+
+A subsequent user-provided screenshot shows a Context named `crAPI-Lab` in the ZAP Contexts panel. The `http://localhost:8888` site remains visible in Sites and the History panel still contains locally captured traffic.
+
+**Verified:** Context name is created and visible. **Not yet independently verified from this screenshot:** the Context's `In Scope` checkbox and complete include/exclude rules. Verify before any active scanning; other internet origins present in Sites are out of scope.
+
+**Next action assigned:** create first researcher-controlled test account (User A) through the crAPI Signup form; inspect the resulting POST request in ZAP History without exposing credentials or tokens. User B will follow after the first signup is verified.
