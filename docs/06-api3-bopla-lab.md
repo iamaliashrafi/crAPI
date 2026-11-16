@@ -52,3 +52,32 @@ References:
 - https://owasp.github.io/www-project-crapi/ (Challenges 4 and 5)
 - https://cybersec-research.space/posts/crAPI_writeup/ (example community post endpoints)
 - https://www.zaproxy.org/docs/desktop/start/features/history/
+
+## API3 baseline B1 — community posts reveal additional author properties (2026-11-16)
+
+**Evidence:** Researcher-provided OWASP ZAP screenshot, **History ID 352**, compared with their previously provided authenticated Forum UI screenshot. Researcher was signed in as their own TesterB test account.
+
+| Property | Observed |
+|---|---|
+| Method | `GET` |
+| Endpoint | `/community/api/v2/community/posts/recent?limit=30&offset=0` |
+| Target | `http://localhost:8888` (researcher-owned OWASP crAPI lab) |
+| HTTP response | `200 OK` |
+| Response Content-Type | `application/json` |
+| Response body size | 1007 bytes |
+| Number of posts in response | 3 (`"total":3`) |
+
+**Response structure / property names observed:**
+- Top-level: `posts`, `next_offset`, `previous_offset`, `total`.
+- Each observed post: `id`, `title`, `content`, `author`, `comments`, `authorid`, `CreatedAt`.
+- Nested `author`: `nickname`, `email`, `vehicleid`, `profile_pic_url`, `created_at`.
+
+**UI comparison:** The screenshot of `/forum` displays post title, author nickname, posting date, and content. The post-feed response **also includes each author's email address and vehicle identifier**, neither visibly shown in the provided Forum UI screenshot. Numeric author IDs and author-account creation timestamps are likewise returned and not shown as primary Forum labels. The screenshots show data for multiple post authors rather than merely the logged-in user.
+
+**Potential security relevance:** `author.email` is contact information; `author.vehicleid` may enable correlation with vehicle-related API operations. Because a separate API1 BOLA issue was confirmed in this same lab, exposing vehicle IDs could increase exploitability **if** an exposed ID is usable in the vulnerable vehicle endpoints. Such an exploit chain has **not** been demonstrated with these specific Forum-derived identifiers; do not claim it. API returns additional properties; whether exposure violates the intended authorization/privacy policy and affects unrelated users requires a controlled second-account read-only check.
+
+**Current assessment:** **Potential API3 excessive-data-exposure finding — under validation**. Presence of fields outside the UI is directly observed, but their intended disclosure and concrete impact are not yet independently verified. No further security-sensitive data was extracted.
+
+**Next step:** Sign in to the local crAPI Forum using research-owned **TesterA** and capture its normal `GET /community/api/v2/community/posts/recent?limit=30&offset=0` in ZAP. Compare the set of author-property names and confirm whether other authors' `email` and `vehicleid` properties are returned to that different account as well. No request tampering, password guessing, or write operations are needed.
+
+**Evidence hygiene:** Original ZAP screenshot contains a complete Bearer JWT, session cookie, email addresses and vehicle IDs. **Do not upload the screenshot as-is** to this public GitHub repository; all values are omitted in this sanitized text record.
