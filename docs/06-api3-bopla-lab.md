@@ -245,3 +245,21 @@ References:
 **Workflow preference:** The researcher requested **manual-only testing with OWASP ZAP** until they complete separate Python training. Do not propose or require scripting for subsequent lab steps unless the researcher explicitly asks to resume.
 
 **Sensitive evidence:** Screenshot shows a Bearer JWT and test-account details. No raw screenshot, token, cookie, or user values are included in public GitHub documentation.
+
+## API3 manual probe B11 — duplicate phone prevented field-assignment assessment (2026-11-17)
+
+**Evidence:** Researcher-provided ZAP Requester screenshot, manual **History ID 376**.
+
+| Attribute | Observed |
+|---|---|
+| HTTP method | `POST` |
+| Path | `/identity/api/v2/user/change-phone-number` |
+| JSON keys | `old_number`, `new_number`, extra benign `name` marker |
+| Response status | **`403 Forbidden`** |
+| Response message (sanitized) | `Number already registered!` |
+
+**Interpretation:** The researcher reused the previously registered new test phone in the `new_number` field, while retaining the pre-change number in `old_number`. The endpoint rejected the duplicate-number condition. This is **not** evidence that the extra `name` field was accepted, rejected, or persisted; no Mass Assignment flaw has been confirmed. The earlier tester-owned phone update was independently verified by the researcher's read-only Python baseline (`Phone comparison: MATCH`).
+
+**Next manual-only step:** In the same private ZAP Requester tab, use the currently persisted phone in `old_number` and an entirely new, unregistered, controlled test phone in `new_number`; keep the benign `name` marker unchanged and send once. Do not complete OTP at this stage. Inspect the response, then verify account `name` by a fresh authorized GET. An OTP-initiation HTTP 200 does not by itself mean the extra property was saved.
+
+**Evidence hygiene:** The screenshot contains a live-looking bearer JWT, cookie and test phone numbers. Omit values and raw screenshots from public documentation. The researcher requests **manual-only** ZAP testing, without scripting.
