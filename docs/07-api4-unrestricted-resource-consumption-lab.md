@@ -67,3 +67,25 @@ Retain only sanitized endpoint details, test conditions, observed status, status
 **Next bounded, manual-only check:** Change only `limit=100` to `limit=0` in the same GET request and send once, keeping `offset=0`. Inspect the status and body. This is a safe input-boundary/validation probe, **not** a load test. If the endpoint rejects zero (4xx), note the validation rule; if it accepts zero, record whether it returns an empty list, a default page size, or an error. No repeated or very large requests.
 
 **Safety and evidence:** The screenshot includes a Bearer JWT, session material, author emails and vehicle IDs. Do not publish the raw screenshot or any values in GitHub; preserve only the redacted request metadata and measurements here.
+
+## API4 A2 — zero-page-size boundary check (2026-11-17)
+
+**Evidence:** Researcher-supplied OWASP ZAP Requester screenshot from their authorized local crAPI lab.
+
+| Attribute | Observation |
+|---|---|
+| Method | `GET` |
+| Path | `/community/api/v2/community/posts/recent?limit=0&offset=0` |
+| HTTP status | **`200 OK`** |
+| Content type | `application/json` |
+| ZAP-reported response body length | **1,001 bytes** |
+| ZAP-reported elapsed time | **39 ms** |
+| Posts in visible JSON | Three existing post objects |
+
+**Comparison:** The earlier `limit=100` single-request check returned HTTP 200 with three posts, body length 1,007 bytes, and 53 ms; the same known dataset consists of only three posts. The six-byte body-size difference might reflect pagination metadata or other JSON response differences, but the exact source has **not** been verified. Avoid claiming the response bodies are identical.
+
+**Interpretation:** The endpoint did not reject a zero `limit` and returned existing posts, rather than an empty list. The reason is not established; possible interpretations include default-value fallback or special handling of zero. This is a **pagination-input semantics observation**, not evidence of unrestricted resource consumption, missing server-side upper bounds, or resource exhaustion. No API4 finding confirmed.
+
+**Next low-impact manual control:** Change only `limit=0` to `limit=1`, leave `offset=0`, and send one read-only GET through ZAP Requester. Inspect whether the API returns **one post** or ignores the requested count. This checks whether the parameter is effective without introducing load. Do not conduct a flood or very-large-limit probe.
+
+**Evidence hygiene:** The screenshot visibly contains a Bearer JWT, and the response includes author email addresses and vehicle identifiers; don't upload it unredacted to public GitHub.
