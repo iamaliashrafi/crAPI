@@ -181,3 +181,33 @@ References:
 **Why:** Establish a precise, reproducible post-change profile baseline before designing a single controlled property mutation test for Mass Assignment. Keep all credentials, OTPs, JWTs, cookies and phone values out of public GitHub artifacts.
 
 **Next step:** The researcher runs the script locally and shares only HTTP status, field names and phone-comparison state. Do not claim the phone is persisted or Mass Assignment is confirmed before reading the actual results.
+
+## Python baseline B8 — successful local run (2026-11-17)
+
+**Evidence source:** Researcher-provided terminal output from their own Mac, not an independently executed remote test.
+
+**Execution environment:** Local Python virtual environment `.venv`, `requests` installed from `scripts/requirements.txt`, OWASP crAPI at `http://localhost:8888`, OWASP ZAP configured as `http://127.0.0.1:8081`.
+
+**Command:** `python scripts/api03_profile_baseline.py`  
+**Result:** TesterA login succeeded; authenticated `GET /identity/api/v2/user/dashboard` returned **HTTP 200**, using the ZAP proxy for the read-only GET. No credentials or response values were printed. The user skipped the optional phone-number comparison, so the newly set phone value **has not been independently verified** by this run.
+
+**Structural output (no personal values):**
+
+| JSON property | Python type |
+|---|---|
+| `id` | `int` |
+| `name` | `str` |
+| `email` | `str` |
+| `number` | `str` |
+| `picture_url` | `NoneType` |
+| `video_url` | `NoneType` |
+| `video_name` | `NoneType` |
+| `available_credit` | `float` |
+| `video_id` | `int` |
+| `role` | `str` |
+
+**Interpretation:** The script now has a verified successful *execution baseline* for this researcher's local lab. Field existence is not itself a mass-assignment vulnerability: write operations and persisted-property authorization still require separate controlled verification.
+
+**Next step:** Run the same script again, this time entering the expected new test phone at the hidden comparison prompt. Confirm `Phone comparison: MATCH` before proceeding to a low-impact write-property test. A mismatch or unavailable result must not be labeled a vulnerability without further checks.
+
+**Evidence hygiene:** No JWT, password, OTP, phone value, email address, or ZAP session is copied into this repository.
