@@ -42,3 +42,17 @@ Keep JWTs, cookies, emails, video content, IDs and raw unredacted ZAP screenshot
 ## Prior API4 case
 
 The 10 MB video upload limit was challenged once with a researcher-reported ~11 MB MP4. The video endpoint `POST /identity/api/v2/user/videos` returned **HTTP 413** with `title: Payload Too Large` and `detail: Maximum upload size exceeded`. This showed an active upstream or application upload-size control, not an API4 bypass. Disruptive Contact Mechanic layer-7 DoS testing was not conducted.
+
+## API5 scenario revision — TesterA owns uploaded video; TesterB tests restricted deletion (2026-11-17)
+
+**Researcher-reported setup:** A disposable test video has now been uploaded by **TesterA (User 1)**. The researcher wants to test whether the other ordinary account, **TesterB**, can delete TesterA's video. The video ID and actual upload response have **not yet been provided**, nor has a DELETE request been executed.
+
+**Authorization design:** Record a fresh authenticated TesterA `GET /identity/api/v2/user/dashboard` and obtain the `video_id` locally (avoid sharing secrets or actual IDs publicly). Then authenticate as TesterB, make sure a B-issued Bearer JWT is in use, and perform at most one deliberate authorization check on the known admin delete operation `DELETE /identity/api/v2/admin/videos/{video_id}` **against only this researcher-owned disposable A video**. The official crAPI OpenAPI specification advertises this as an admin video deletion endpoint; whether it lacks authorization in the researcher's deployed version is **untested**. Verify the result from a fresh TesterA dashboard; 2xx response alone does not prove deletion.
+
+**Consent/safety:** This test intentionally may permanently delete the disposable video. Do not operate on any third-party user content, or upload raw JWTs, cookies, videos, or personal identifiers to a public repository. No scripting; manual ZAP-only.
+
+**Evidence status:** Setup confirmed by researcher's statement; **no API5 finding yet**. Do not classify based on third-party writeups.
+
+**Sources:**
+- https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md (Challenge 7)
+- https://github.com/OWASP/crAPI/blob/develop/openapi-spec/crapi-openapi-spec.json (declared admin delete operation)
