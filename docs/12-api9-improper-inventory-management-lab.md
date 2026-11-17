@@ -48,3 +48,18 @@ API8 A1 was confirmed as a low-severity verbose Java/Spring validation error dis
 ## Evidence handling
 
 Keep JWTs, cookies, test emails, OTP values, test passwords and raw ZAP request screenshots out of the public repository. Record sanitized endpoint, HTTP status, response message category and exact differences observed.
+
+## API9 A0 — wrong route received 404; inventory check not executed (2026-11-17)
+
+**Evidence:** Researcher-supplied ZAP Requester screenshot of a manual request in the authorized local crAPI lab.
+
+- **Submitted path:** `POST /identity/api/v3/user/verify-phone-otp`.
+- **HTTP result:** `404 Not Found`.
+- **Response JSON:** Problem-details body with `title: Not Found`, `status: 404`, `detail: No static resource identity/api/v3/user/verify-phone-otp.`
+- **Other request data:** Body contains phone-change fields `old_number`, `new_number`, `otp`, and a benign `name` marker. The full Bearer JWT and phone values were visible in the screenshot and are intentionally omitted here.
+
+**Interpretation:** The researcher accidentally changed an earlier **phone-number verification** request to `/identity/api/v3/user/verify-phone-otp`, which is **not** the older password-reset OTP endpoint under assessment. Therefore this 404 is **not evidence** that `/identity/api/auth/v2/check-otp` has been retired or disabled. **API9 remains untested**.
+
+**Correct next single test:** Find the original password-reset request `POST /identity/api/auth/v3/check-otp` in ZAP History. Open it in Requester; change only `/auth/v3/check-otp` to `/auth/v2/check-otp`, using the researcher-owned TesterB account and a known-invalid or already-consumed OTP, without guessing codes. Send once and record the exact response. Do not attempt any bulk OTP guesses or password resets with valid codes.
+
+**Evidence handling:** Do not publicly upload JWTs, cookies, phone numbers, test credentials, or OTPs from this screenshot.
