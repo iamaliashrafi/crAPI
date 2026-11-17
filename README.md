@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, API5 BFLA, and API7 SSRF confirmed in the authorized local lab; API2, API4, and API6 limited checks completed without a confirmed relevant bypass or abuse; API8 under review, API9–API10 pending.  
+**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, API5 BFLA, and API7 SSRF confirmed in the authorized local lab; API2, API4, and API6 limited checks completed without a confirmed relevant bypass or abuse; API8 low-severity verbose error disclosure confirmed, API9 in progress, API10 pending.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -76,6 +76,12 @@ A researcher-owned ordinary TesterB account invoked the admin video-deletion end
 A manual Contact Mechanic request with client-selected `mechanic_api=http://google.com` caused the local crAPI application to return external-site HTML in its `response_from_mechanic_api` JSON field (HTTP 200), confirming a benign external-target SSRF. No internal hosts, cloud metadata, or sensitive exfiltration were attempted. [Formal finding](findings/API07-SSRF-ARBITRARY-PUBLIC-URL-FETCH.md) · [API7 journal](docs/10-api7-ssrf-lab.md).
 
 **Next:** [API8 Security Misconfiguration](docs/11-api8-security-misconfiguration-lab.md), beginning with a previously observed verbose Java/Spring validation error.
+
+## API8 confirmed — verbose validation errors (2026-11-17)
+
+An earlier malformed local phone-change request returned HTTP 400 with JSON `details` revealing Spring's `BeanPropertyBindingResult`, internal form name and validation constraints. This is an **API8 configuration/hardening disclosure** (Low provisional, not an authentication bypass). [Sanitized finding](findings/API08-VERBOSE-VALIDATION-ERRORS.md) · [API8 journal](docs/11-api8-security-misconfiguration-lab.md).
+
+**Next manual check:** [API9 old OTP API version inventory](docs/12-api9-improper-inventory-management-lab.md). Both v2/v3 endpoints are listed in the official crAPI API specification; their control differences are not yet verified in this researcher's lab. No brute-force or bulk requests.
 
 ## References
 
