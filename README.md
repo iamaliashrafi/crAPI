@@ -61,6 +61,10 @@ An authorized read-only check of the Community Forum post-feed endpoint returned
 
 **API2 note:** Controlled invalid/valid OTP recovery and an attempt-limit response were observed, but JWT invalidation remains unverified. See the [API2 journal](docs/05-api2-broken-authentication-lab.md).
 
+## Python + ZAP automation (from 2026-11-17)
+
+Subsequent lab exercises use small, reviewable Python scripts for reproducible authenticated requests and OWASP ZAP as an intercepting evidence/inspection proxy. The first read-only script, [API3 Profile Baseline](scripts/api03_profile_baseline.py), logs in to the **research-owned local lab**, makes one authenticated Dashboard GET through ZAP, and prints **only JSON field names/types and an optional local phone-number match result**. It does not itself establish Mass Assignment or modify the account. See [scripts/README.md](scripts/README.md) for macOS setup, execution and safeguards.
+
 ## References
 
 - [OWASP API Security Top 10 (2023)](https://api-security.owasp.org/editions/2023/en/0x11-t10/)
