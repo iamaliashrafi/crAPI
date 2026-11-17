@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, API5 BFLA, and API7 SSRF confirmed in the authorized local lab; API2, API4, and API6 limited checks completed without a confirmed relevant bypass or abuse; API8 low-severity verbose error disclosure confirmed, API9 in progress, API10 pending.  
+**Project status:** **Ten-category educational walkthrough completed** (2026-11-17). **Five local findings confirmed** in API1 BOLA, API3 author-property exposure, API5 BFLA, API7 external SSRF and API8 verbose errors. API2, API4, API6 and API9 had limited tests without demonstrated relevant exploits; API10 was inconclusive. This is not an exhaustive penetration test or a guarantee of security.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -81,7 +81,18 @@ A manual Contact Mechanic request with client-selected `mechanic_api=http://goog
 
 An earlier malformed local phone-change request returned HTTP 400 with JSON `details` revealing Spring's `BeanPropertyBindingResult`, internal form name and validation constraints. This is an **API8 configuration/hardening disclosure** (Low provisional, not an authentication bypass). [Sanitized finding](findings/API08-VERBOSE-VALIDATION-ERRORS.md) · [API8 journal](docs/11-api8-security-misconfiguration-lab.md).
 
-**Next manual check:** [API9 old OTP API version inventory](docs/12-api9-improper-inventory-management-lab.md). Both v2/v3 endpoints are listed in the official crAPI API specification; their control differences are not yet verified in this researcher's lab. No brute-force or bulk requests.
+**API9 observed:** The documented older v2 OTP route remains reachable and rejected a known-invalid OTP with HTTP 500; whether it has weaker controls is unverified. **API10 observed:** The single public redirect request returned HTTP 400 `Could not connect to mechanic api.`; no independent issue was confirmed.
+
+## Assessment complete — all ten categories (2026-11-17)
+
+The documented **educational** assessment covers each OWASP API Security Top 10 (2023) category with deliberately bounded manual lab tests. Five local findings are documented, while the other categories are limited checks or inconclusive results.
+
+- [Final assessment summary and ten-category results](docs/14-final-assessment-summary.md)
+- [Assessment tracker](docs/03-assessment-tracker.md)
+- [API9 legacy version investigation](docs/12-api9-improper-inventory-management-lab.md)
+- [API10 external API redirect check](docs/13-api10-unsafe-consumption-of-apis-lab.md)
+
+The result should not be represented as a full professional penetration test, a formal risk assessment, or remediation validation.
 
 ## References
 
