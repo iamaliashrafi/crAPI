@@ -52,3 +52,24 @@ Never publish JWTs, cookies, VINs, OTPs, full Contact Mechanic reports, or raw Z
 - https://httpbin.org/legacy (redirect-to endpoint)
 - https://github.com/postmanlabs/httpbin/blob/master/httpbin/core.py
 - [Prior API7 SSRF finding](../findings/API07-SSRF-ARBITRARY-PUBLIC-URL-FETCH.md)
+
+## API10 A1 — public redirect test returned connection error (2026-11-17)
+
+**Evidence:** Researcher-provided screenshot of **OWASP ZAP Requester** and History **#514** from the authorized local crAPI instance, after one test with the previously captured `POST /workshop/api/merchant/contact_mechanic` request. No scripting, flooding or internal IP destinations were used.
+
+| Field | Observed value |
+|---|---|
+| Method/path | `POST /workshop/api/merchant/contact_mechanic` |
+| `mechanic_api` | `https://httpbin.org/redirect-to?url=https%3A%2F%2Fexample.com%2F` |
+| Retry behavior | `repeat_request_if_failed=false`, `number_of_repeats=1` |
+| HTTP status | **400 Bad Request** |
+| JSON error | `{"message":"Could not connect to mechanic api."}` |
+| ZAP elapsed time | **5,706 ms** |
+| ZAP response body size | **48 bytes** |
+| Followed redirect / fetched `example.com`? | **Not demonstrated** |
+
+**Interpretation:** The application did not complete the requested external redirect workflow. The screenshot does **not** establish whether the cause was outbound connectivity, TLS, a remote service condition, timeout, redirect policy or application-level processing. It **does not** prove that redirects are correctly blocked or that upstream input is safely consumed. The separately confirmed API7 SSRF test reflected Google's HTML from a user-controlled `mechanic_api`, but that same proof is **not double-counted** as an independent API10 vulnerability.
+
+**Conclusion / stopping rule:** **Limited API10 check complete — inconclusive; no independently confirmed API10 vulnerability.** This is a coverage exercise, not a full security assurance or clean bill of health. Further upstream response trust checks can be included in a later explicitly scoped assessment. No additional requests are needed for the present ten-category educational lab.
+
+**Evidence hygiene:** Raw ZAP screenshot contains test JWT and VIN. Only sanitized metadata and response text recorded publicly.
