@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — API1 BOLA and API3 Excessive Data Exposure confirmed in the authorized local lab; API2 controls tested (no confirmed bypass); API4–API10 pending.  
+**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, and API5 BFLA confirmed in the authorized local lab; API2 and API4 limited checks completed without a confirmed bypass; API6 in progress, API7–API10 pending.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -64,6 +64,12 @@ An authorized read-only check of the Community Forum post-feed endpoint returned
 ## Python + ZAP automation (from 2026-11-17)
 
 Subsequent lab exercises use small, reviewable Python scripts for reproducible authenticated requests and OWASP ZAP as an intercepting evidence/inspection proxy. The first read-only script, [API3 Profile Baseline](scripts/api03_profile_baseline.py), logs in to the **research-owned local lab**, makes one authenticated Dashboard GET through ZAP, and prints **only JSON field names/types and an optional local phone-number match result**. It does not itself establish Mass Assignment or modify the account. See [scripts/README.md](scripts/README.md) for macOS setup, execution and safeguards.
+
+## API5 confirmed (2026-11-17)
+
+A researcher-owned ordinary TesterB account invoked the admin video-deletion endpoint for a disposable video belonging to researcher-owned TesterA. ZAP recorded `HTTP 200` and `User video deleted successfully.`; the researcher checked TesterA's profile afterward and confirmed the video was absent. [Formal API5 finding](findings/API05-BFLA-UNAUTHORIZED-VIDEO-DELETION.md) · [Lab journal](docs/08-api5-broken-function-level-authorization-lab.md). Provisional High severity, local training environment only.
+
+**Current manual coverage:** [API6 business-flow abuse testing journal](docs/09-api6-sensitive-business-flows-lab.md). All further tests are manual in ZAP unless the researcher explicitly changes that preference.
 
 ## References
 
