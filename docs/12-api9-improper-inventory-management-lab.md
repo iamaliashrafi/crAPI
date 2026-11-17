@@ -63,3 +63,22 @@ Keep JWTs, cookies, test emails, OTP values, test passwords and raw ZAP request 
 **Correct next single test:** Find the original password-reset request `POST /identity/api/auth/v3/check-otp` in ZAP History. Open it in Requester; change only `/auth/v3/check-otp` to `/auth/v2/check-otp`, using the researcher-owned TesterB account and a known-invalid or already-consumed OTP, without guessing codes. Send once and record the exact response. Do not attempt any bulk OTP guesses or password resets with valid codes.
 
 **Evidence handling:** Do not publicly upload JWTs, cookies, phone numbers, test credentials, or OTPs from this screenshot.
+
+## API9 A1 — legacy v2 password-reset OTP endpoint is active (2026-11-17)
+
+**Evidence:** Researcher-provided OWASP ZAP Requester screenshot, **History #512**, manually edited from a previously observed v3 request. Only one known-invalid OTP was supplied to a research-owned test account; no brute force or valid-password reset.
+
+| Property | Observed |
+|---|---|
+| Method/path | `POST /identity/api/auth/v2/check-otp` |
+| Request JSON keys | `email`, `otp`, `password` (values excluded) |
+| Response HTTP status | **500** |
+| Response JSON | `{"message":"Invalid OTP! Please try again.","status":500}` |
+| ZAP reported time | **55 ms** |
+| ZAP response body length | **58 bytes** |
+
+**Interpretation:** The old **v2** route is deployed and routes to **application-level OTP-validation logic** (rather than returning a route-not-found 404). The supplied invalid OTP was rejected. This proves a legacy version remains reachable, but **does not prove the endpoint should have been retired, lacks rate limiting, is exploitable, or differs materially in security from v3**. The error `HTTP 500` for invalid OTP is a questionable HTTP status mapping; do not portray this as successful OTP bypass or account takeover.
+
+**Result:** **Legacy API version active; security impact not established**. Stop here; no bulk OTP testing. Mark limited API9 coverage complete without a confirmed vulnerability.
+
+**Evidence safety:** Screenshot includes test-account email, OTP and password; no values, cookies, raw screenshot or secrets copied into this public journal.
