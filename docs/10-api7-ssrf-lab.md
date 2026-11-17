@@ -35,3 +35,26 @@ Do not commit real bearer JWTs, session cookies, VINs, report identifiers tied t
 - https://owasp.github.io/www-project-crapi/ (official Challenge 11)
 - https://api-security.owasp.org/editions/2023/en/0xa7-server-side-request-forgery/
 - https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md
+
+## API7 A1 — SSRF confirmed with harmless public endpoint (2026-11-17)
+
+**Evidence:** Researcher-supplied OWASP ZAP Requester screenshot of a manual request and its response in the authorized self-hosted crAPI lab.
+
+| Data | Visible observation |
+|---|---|
+| ZAP History | **508**, source **Manual** |
+| Path | `POST /workshop/api/merchant/contact_mechanic` |
+| User-supplied destination | `mechanic_api: "http://google.com"` |
+| Retry controls | `repeat_request_if_failed: false`, `number_of_repeats: 1` |
+| Response HTTP status | **200 OK** |
+| Response JSON property | `response_from_mechanic_api` contains HTML beginning with `<!doctype html><html...`, corresponding to the chosen public website |
+| ZAP response body length | **89,825 bytes** |
+| ZAP elapsed time | **750 ms** |
+
+**Classification:** **Confirmed in the local lab — benign external-target SSRF, with response reflection.** The controllable `mechanic_api` field triggered fetching content from a user-chosen public website outside the intended mechanic domain; this meets the observable objective of official crAPI Challenge 11. The image directly displays the request and returned external-site HTML. No private-network, metadata, port-scanning, sensitive-data or exfiltration test was performed. Actual DNS/redirect chain not independently inspected; don't overstate the result.
+
+**Formal sanitized finding:** [API07-SSRF-001 — User-Controlled Mechanic Callback URL](../findings/API07-SSRF-ARBITRARY-PUBLIC-URL-FETCH.md). Severity **Medium, provisional**; no CVSS scoring or remediation done.
+
+**Stopping rule:** One harmless manual public-URL proof is sufficient for this educational lab. No more requests to internal addresses or repetitive callback probing are needed for this finding.
+
+**Next:** API8 Security Misconfiguration, starting with previously observed overly verbose Java validation errors in manual History #375 (no fresh request required).
