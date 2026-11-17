@@ -74,3 +74,15 @@ API5 **BFLA** was confirmed in this local lab: a disposable video reported owned
 **Next read-only check:** Refresh the researcher's own Community → Forum page, then inspect the newest `GET /community/api/v2/community/posts/recent` in ZAP Response Body. Count post objects titled `API6-LAB-POST-01` and check whether any have distinct IDs. Report only the count; do not upload bearer JWTs, session cookies, author emails, or vehicle IDs.
 
 **Evidence hygiene:** The screenshot contains a Bearer token and nested author identity/contact/vehicle details. The public documentation records only sanitized properties and metadata.
+
+## API6 A3 — two matching posts visible after refresh (2026-11-17)
+
+**Researcher-reported follow-up:** After the normal POST (History **476**) and one manual replay (History **478**) both returned HTTP `200`, the researcher checked the Forum and reported **two posts** with the test title `API6-LAB-POST-01`.
+
+**Evidence provenance:** The earlier provided ZAP screenshot independently displays the two accepted POSTs and a new post-shaped JSON response for the manual replay. The **two-post count is researcher-reported** from a subsequent Forum view, not supported by a separately supplied screenshot of the refreshed GET response. Distinct post IDs were **not** explicitly provided; do not assert independent IDs beyond what the observed two visible posts support.
+
+**Conclusion for this deliberately limited exercise:** The application **permitted one duplicate post submission** and two test posts were visible. **No duplicate/cooldown block appeared during this small test**. This does **not** prove unrestricted automated posting, spam at scale, absence of all anti-bot controls, or business impact. **No confirmed API6 vulnerability.**
+
+**Scope / stopping rule:** Stop sending duplicate POSTs; avoid flooding or automated high-volume tests. If the application supports authorized deletion of the researcher's own forum posts, the two test posts can be cleaned up through ordinary UI later. Otherwise retain them explicitly as disposable lab fixtures. Close limited manual checks and proceed to API7 only if the researcher asks.
+
+**Source for classification:** https://api-security.owasp.org/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/ — OWASP specifically lists comment/post creation as a potentially sensitive workflow but notes that risk depends on the business's requirements.
