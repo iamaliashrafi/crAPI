@@ -66,3 +66,23 @@ The 10 MB video upload limit was challenged once with a researcher-reported ~11 
 **Authoritative endpoint source:** https://github.com/OWASP/crAPI/blob/develop/openapi-spec/crapi-openapi-spec.json (admin video DELETE operation).
 
 **Secret hygiene:** JWT, cookies, account identity and raw screenshots must not be published in the public repository.
+
+## API5 one-shot cross-user administrative DELETE — successful response, state verification pending (2026-11-17)
+
+**Screenshot evidence:** The researcher supplied a ZAP Requester screenshot with a **single** `DELETE http://localhost:8888/identity/api/v2/admin/videos/52 HTTP/1.1` sent in the test flow that had logged in as **TesterB**, after TesterA had reportedly uploaded a disposable video and reported its `video_id` as **52**. A Bearer JWT was present in the request. The token's exact identity/claims are not independently verified from the screenshot; the researcher followed the TesterB session plan.
+
+| Measurement | Observed |
+|---|---|
+| HTTP method | `DELETE` |
+| Path | `/identity/api/v2/admin/videos/52` |
+| Request | Bearer authentication header present; user reports TesterB's ordinary account context |
+| HTTP result | **`200 OK`** |
+| Exact response body | `{"message":"User video deleted successfully.","status":200}` |
+| ZAP displayed elapsed time | **203 ms** |
+| Persisted deletion | **Not yet verified** by a fresh authenticated TesterA profile/dashboard response |
+
+**Assessment:** A **strong potential BFLA / unauthorized privileged delete operation** is indicated: an apparently ordinary user was accepted on an `admin` video deletion endpoint for another test account's video, and the server reported success. Do **not** mark as a confirmed vulnerability solely on this 200 response: verify both the ownership of the targeted video and its actual disappearance from TesterA's account. Confirm the deletion response was made with TesterB's normal privileges rather than a privileged token.
+
+**Next step (manual, read-only):** Do **not** repeat DELETE. Sign out of TesterB, sign back in as TesterA, refresh `/my-profile`, and inspect whether the disposable video has disappeared. If needed, examine a fresh `GET /identity/api/v2/user/dashboard` for the `video_id`/video-related fields (values redacted in public screenshots). Return only presence/absence and status. A confirmed missing video would support an independent API5 finding.
+
+**Evidence hygiene:** Screenshot includes a full lab Bearer JWT, session data and API details. Do not upload raw screenshot to the public repository. Report uses only sanitized properties and nonsecret response content.
