@@ -54,3 +54,23 @@ API5 **BFLA** was confirmed in this local lab: a disposable video reported owned
 - https://api-security.owasp.org/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/
 - https://github.com/OWASP/crAPI/tree/develop/openapi-spec
 - https://owasp.github.io/www-project-crapi/
+
+## API6 A1/A2 — first Forum post and one manual duplicate submission (2026-11-17)
+
+**Evidence:** Researcher-supplied OWASP ZAP Requester screenshot from the researcher's own local crAPI lab, with previously authorized test account TesterB.
+
+| Check | Observation |
+|---|---|
+| Normal `POST /community/api/v2/community/posts` | ZAP History **476**, source Proxy, HTTP **200 OK**, response body **372 bytes** |
+| Initial list GET | ZAP History **477**, HTTP **200 OK**; occurred **before** manual replay, so not proof of duplicate persistence |
+| Manual `POST /community/api/v2/community/posts` | ZAP History **478**, source Manual, HTTP **200 OK**, response body **370 bytes** |
+| Request properties in shown Requester | `title`, `content` |
+| Title in both steps (per instructed workflow) | `API6-LAB-POST-01` |
+| Manual 478 response | One post-shaped JSON object with a generated `id`, the submitted title/content, and `author.nickname` identifying TesterB; status HTTP 200 |
+| Actual duplicate stored | **Not yet independently verified** by a fresh post-feed GET after History 478 |
+
+**Interpretation:** Two low-volume, seemingly identical post-creation requests returned HTTP 200. The server's second response reports a newly created post, but the persisted existence of two distinct posts has **not yet been verified** after the manual replay. Even successful storage of two posts would not prove unrestricted automated posting, missing anti-spam controls or a business-impactful **API6** vulnerability. **Do not replay again or run a Fuzzer.**
+
+**Next read-only check:** Refresh the researcher's own Community → Forum page, then inspect the newest `GET /community/api/v2/community/posts/recent` in ZAP Response Body. Count post objects titled `API6-LAB-POST-01` and check whether any have distinct IDs. Report only the count; do not upload bearer JWTs, session cookies, author emails, or vehicle IDs.
+
+**Evidence hygiene:** The screenshot contains a Bearer token and nested author identity/contact/vehicle details. The public documentation records only sanitized properties and metadata.
