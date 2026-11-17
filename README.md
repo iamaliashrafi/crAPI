@@ -2,7 +2,7 @@
 
 A structured, hands-on API security assessment of the intentionally vulnerable [OWASP crAPI](https://github.com/OWASP/crAPI) application using **OWASP ZAP**.
 
-**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, and API5 BFLA confirmed in the authorized local lab; API2 and API4 limited checks completed without a confirmed bypass; API6 in progress, API7–API10 pending.  
+**Project status:** In progress — API1 BOLA, API3 Excessive Data Exposure, API5 BFLA, and API7 SSRF confirmed in the authorized local lab; API2, API4, and API6 limited checks completed without a confirmed relevant bypass or abuse; API8 under review, API9–API10 pending.  
 **Assessment environment:** Local self-hosted crAPI instance (`http://localhost:8888`).  
 **Assessment date started:** 2026-11-16.  
 **Tooling:** OWASP ZAP, browser, and manual HTTP request/response review.
@@ -70,6 +70,12 @@ Subsequent lab exercises use small, reviewable Python scripts for reproducible a
 A researcher-owned ordinary TesterB account invoked the admin video-deletion endpoint for a disposable video belonging to researcher-owned TesterA. ZAP recorded `HTTP 200` and `User video deleted successfully.`; the researcher checked TesterA's profile afterward and confirmed the video was absent. [Formal API5 finding](findings/API05-BFLA-UNAUTHORIZED-VIDEO-DELETION.md) · [Lab journal](docs/08-api5-broken-function-level-authorization-lab.md). Provisional High severity, local training environment only.
 
 **Current manual coverage:** [API6 business-flow abuse testing journal](docs/09-api6-sensitive-business-flows-lab.md). All further tests are manual in ZAP unless the researcher explicitly changes that preference.
+
+## API7 confirmed (2026-11-17)
+
+A manual Contact Mechanic request with client-selected `mechanic_api=http://google.com` caused the local crAPI application to return external-site HTML in its `response_from_mechanic_api` JSON field (HTTP 200), confirming a benign external-target SSRF. No internal hosts, cloud metadata, or sensitive exfiltration were attempted. [Formal finding](findings/API07-SSRF-ARBITRARY-PUBLIC-URL-FETCH.md) · [API7 journal](docs/10-api7-ssrf-lab.md).
+
+**Next:** [API8 Security Misconfiguration](docs/11-api8-security-misconfiguration-lab.md), beginning with a previously observed verbose Java/Spring validation error.
 
 ## References
 
