@@ -89,3 +89,29 @@ Retain only sanitized endpoint details, test conditions, observed status, status
 **Next low-impact manual control:** Change only `limit=0` to `limit=1`, leave `offset=0`, and send one read-only GET through ZAP Requester. Inspect whether the API returns **one post** or ignores the requested count. This checks whether the parameter is effective without introducing load. Do not conduct a flood or very-large-limit probe.
 
 **Evidence hygiene:** The screenshot visibly contains a Bearer JWT, and the response includes author email addresses and vehicle identifiers; don't upload it unredacted to public GitHub.
+
+## API4 A3 — positive pagination limit one (2026-11-17)
+
+**Evidence:** Researcher-supplied ZAP Requester screenshot from their own localhost crAPI lab.
+
+| Property | Observation |
+|---|---|
+| Request | `GET /community/api/v2/community/posts/recent?limit=1&offset=0` |
+| Response | HTTP **200 OK**, `application/json` |
+| Returned post objects | **1** |
+| JSON `next_offset` | **1** |
+| JSON `previous_offset` | `null` |
+| JSON `total` | **1** (reported by the API for this response; do not confuse with independently established global post count) |
+| Response body length | **376 bytes** |
+| ZAP reported time | **38 ms** |
+
+**Comparison across A1–A3:**
+- `limit=100`: HTTP 200, **3** posts, 1007-byte body, 53 ms.
+- `limit=0`: HTTP 200, **3** posts, 1001-byte body, 39 ms.
+- `limit=1`: HTTP 200, **1** post, 376-byte body, 38 ms.
+
+**Interpretation:** A positive limit of 1 demonstrably controls the number of returned posts; a zero value did not yield an empty page in this dataset and may trigger default semantics. Since there are only three known posts, this experiment **cannot establish whether a maximum page-size limit exists**. No significant resource use or service disruption was observed; **no API4 vulnerability confirmed**. Do not continue escalating `limit` into very large values just to probe availability.
+
+**Next candidate resource control (manual, staged, low-risk):** The researcher's previously observed `/my-profile` interface exposes a **My Personal Video → Upload Video** function and displays a **10 MB** maximum file size. Inspect that upload UI first (no upload yet) and, only after mapping the normal request and server response, design a minimal test of whether server-side file size limits are enforced. Upload controls are within API4 resource consumption scope. No concurrent uploads, flooding, or large files should be used.
+
+**Evidence hygiene:** The raw ZAP screenshot displays a Bearer JWT and author contact / vehicle properties. This public text record intentionally omits secrets and actual post data.
