@@ -317,3 +317,13 @@ References:
 **Next action (no new POSTs):** Refresh the researcher's own TesterA `/my-profile` page, verify the active account and compare its currently displayed phone to the private `old_number` in the Requester. Report only whether they match. If the profile display is ambiguous, use a fresh authenticated read-only dashboard GET to compare `number`; do not disclose the phone. Reassess the latest issued OTP only after the owner-number discrepancy has been resolved.
 
 **Evidence hygiene:** The uploaded screenshot displays a real lab OTP, test phone values, authorization bearer JWT and session cookie; never publish it unredacted.
+
+## API3 mass-assignment pause / transition to API4 (2026-11-17)
+
+**Researcher request:** Stop this manual Mass Assignment scenario and proceed to OWASP API4, using **only OWASP ZAP manual tests**, no scripts.
+
+**Last observed response:** A modified `POST /identity/api/v2/user/verify-phone-otp` containing a benign `name` property returned HTTP **500** with JSON message `Fail, invalid new number` and body status **403** (researcher-supplied screenshot). Earlier attempts had failed phone-field validation or ownership checks. No independent post-response account state change attributable to the added `name` field was observed.
+
+**Assessment status, accurately bounded:** **No Mass Assignment was demonstrated in these attempted phone-change requests; final verification-phase property authorization remains inconclusive.** The screenshot does **not** prove the endpoint, much less the entire API3 category, is free of Mass Assignment. **Separate API3 excessive data exposure finding remains confirmed** in [API03](../findings/API03-EXCESSIVE-DATA-EXPOSURE.md).
+
+**Data safety:** All OTPs, test phone values, JWTs and cookies are excluded from public documentation. The researcher will resume only if desired.
