@@ -229,3 +229,19 @@ References:
 **Interpretation:** A `200` OTP-sent response means only OTP initiation succeeded, not that `name` was modified, not that phone change was finalized, and not that Mass Assignment was found.
 
 **Disclosure:** The source ZAP Requester screenshot contains a JWT, session cookie and test phone numbers. Do not upload it unredacted to public GitHub or portfolio.
+
+## API3 manual mass-assignment probe B10 — request rejected by input validation (2026-11-17)
+
+**Evidence:** Researcher-provided ZAP Requester screenshot of a manual `POST /identity/api/v2/user/change-phone-number` in the authorized local crAPI lab; ZAP History **375**, Source `Manual`.
+
+**Request structure:** `old_number`, `new_number`, and an extra proposed property `name` with a benign lab marker. The researcher sent the *illustrative placeholders* `CURRENT_TEST_PHONE` and `ANOTHER_TEST_PHONE` instead of actual valid lab phone values.
+
+**HTTP result:** `400 Bad Request`, JSON error `Validation failed`. The response names rejected input values and Spring/Java validation detail for `old_number` and `new_number`, including length/size rules.
+
+**Interpretation:** The request failed **input validation** for phone-number values. It does not demonstrate that the additional `name` property was accepted, persisted, or rejected by any property-authorization logic. **No Mass Assignment finding is confirmed.** The verbose framework validation output may be considered in a separate error-handling review, but is not on its own proof of a serious information leak.
+
+**Next manual-only action:** In ZAP Requester, replace placeholder values with the researcher's own current valid test phone and another controlled valid-format test number; preserve the single benign `name` probe field. Send once, do **not** complete OTP. Next obtain a fresh read-only Dashboard response in ZAP and check whether `name` actually changed. If `200` merely initiates an OTP, that alone cannot establish a mass-assignment issue.
+
+**Workflow preference:** The researcher requested **manual-only testing with OWASP ZAP** until they complete separate Python training. Do not propose or require scripting for subsequent lab steps unless the researcher explicitly asks to resume.
+
+**Sensitive evidence:** Screenshot shows a Bearer JWT and test-account details. No raw screenshot, token, cookie, or user values are included in public GitHub documentation.
