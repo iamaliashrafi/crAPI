@@ -136,3 +136,23 @@ Retain only sanitized endpoint details, test conditions, observed status, status
 **Next manual-only action — no new traffic:** Select ZAP History **416** and inspect its **Response → Body** and **Response → Header**. Record whether the message names the limit or the rejecting component; inspect **Request → Header** for Content-Length without disclosing credentials or multipart contents. Do not retry the upload or perform high-volume resource testing. This is a low-impact request limit check, not a DoS attempt.
 
 **Evidence handling:** Do not publish unredacted JWTs, cookies, emails, file content or raw ZAP captures to public GitHub.
+
+## API4 A5 — exact oversized-upload rejection body confirmed (2026-11-17)
+
+**Evidence:** Researcher-supplied close-up ZAP screenshot of **Response → Body** for the earlier video upload request **416**, `POST /identity/api/v2/user/videos`.
+
+```json
+{
+  "type": "about:blank",
+  "title": "Payload Too Large",
+  "status": 413,
+  "detail": "Maximum upload size exceeded",
+  "instance": "/identity/api/v2/user/videos"
+}
+```
+
+The associated History response status was **HTTP 413**. The researcher reports a test MP4 of approximately **11 MB** against the UI-advertised **10 MB** maximum. The close-up independently confirms the explicit server/gateway-side size-limit response, but not the exact uploaded byte count or which infrastructure component enforced the limit.
+
+**Assessment for this case:** **Size-limit control observed — oversized upload rejected. No bypass demonstrated.** This is a defensive behavior, not a vulnerability finding. No more uploads are necessary to close this scenario. The overall API4 category is not declared secure; rate limits, concurrency, expensive business flows, and external-service quotas have not been exhaustively assessed.
+
+**Safe continuation:** The crAPI Contact Mechanic resource-consumption challenge is related to layer-7 DoS and should **not** be performed as high-volume/disruptive traffic. If proceeding, limit work to non-disruptive review of the normal authenticated flow, or record disruptive availability testing as out of scope for this manual exercise. Alternatively move to API5 Broken Function Level Authorization.
