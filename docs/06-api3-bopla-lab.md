@@ -263,3 +263,23 @@ References:
 **Next manual-only step:** In the same private ZAP Requester tab, use the currently persisted phone in `old_number` and an entirely new, unregistered, controlled test phone in `new_number`; keep the benign `name` marker unchanged and send once. Do not complete OTP at this stage. Inspect the response, then verify account `name` by a fresh authorized GET. An OTP-initiation HTTP 200 does not by itself mean the extra property was saved.
 
 **Evidence hygiene:** The screenshot contains a live-looking bearer JWT, cookie and test phone numbers. Omit values and raw screenshots from public documentation. The researcher requests **manual-only** ZAP testing, without scripting.
+
+## API3 manual Mass Assignment probe B12 — extra name field, OTP initiation accepted (2026-11-17)
+
+**Evidence:** Researcher-provided ZAP Requester screenshot in the authorized local crAPI lab, **History ID 377**, Source `Manual`.
+
+| Attribute | Observation |
+|---|---|
+| Method | `POST` |
+| Path | `/identity/api/v2/user/change-phone-number` |
+| Request JSON keys | `old_number`, `new_number`, and an additional benign `name` field |
+| Probe field | `"name":"MassAssignProbeA"` (test marker, not a sensitive value) |
+| HTTP result | **`200 OK`** |
+| Response message | `The otp has been sent to your email.` |
+| Follow-up state | No OTP verification or fresh post-request profile read yet observed |
+
+**Interpretation:** The endpoint successfully processed an OTP-initiation request that included an unrecognized extra `name` JSON property and valid test phone values. **This does not demonstrate Mass Assignment or modification of the user's name**: server-side code may ignore the additional property entirely. Only the normal OTP initiation has been observed.
+
+**Next step (manual-only, no scripts):** Before completing the newly issued OTP, revisit the researcher's own TesterA profile at `/my-profile` (refresh) and inspect the account name. If necessary, capture a fresh authenticated `GET /identity/api/v2/user/dashboard` in ZAP and compare only the `name` value to the known TesterA baseline. Do not send additional modified POSTs yet. If name remains unchanged, the current endpoint-stage test has not demonstrated unauthorized property assignment; a separate final verification-stage test would be needed to assess that endpoint.
+
+**Evidence hygiene:** The supplied screenshot includes a bearer JWT, session cookie and test phone values; do not publish the raw image or copy those values into the public repository.
