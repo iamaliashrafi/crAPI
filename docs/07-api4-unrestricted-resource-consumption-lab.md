@@ -115,3 +115,24 @@ Retain only sanitized endpoint details, test conditions, observed status, status
 **Next candidate resource control (manual, staged, low-risk):** The researcher's previously observed `/my-profile` interface exposes a **My Personal Video → Upload Video** function and displays a **10 MB** maximum file size. Inspect that upload UI first (no upload yet) and, only after mapping the normal request and server response, design a minimal test of whether server-side file size limits are enforced. Upload controls are within API4 resource consumption scope. No concurrent uploads, flooding, or large files should be used.
 
 **Evidence hygiene:** The raw ZAP screenshot displays a Bearer JWT and author contact / vehicle properties. This public text record intentionally omits secrets and actual post data.
+
+## API4 A4 — oversized video upload rejected with HTTP 413 (2026-11-17)
+
+**Evidence:** Researcher-supplied OWASP ZAP screenshot of the History panel for the researcher's self-hosted local crAPI. The Profile UI previously advertised a **10 MB** maximum for **My Personal Video**. The researcher reports testing an approximately **11 MB** video upload and says it failed.
+
+| Property | Observed / qualified |
+|---|---|
+| Upload endpoint | `POST /identity/api/v2/user/videos` |
+| Key ZAP History entry | **416** (proxy-captured) |
+| HTTP status of entry 416 | **413 Payload Too Large** (History Code column) |
+| Response-body size for 416 | **145 bytes** |
+| Other nearby entries | **414** and **415** are `POST` to the same endpoint with **200**; their visible **response** body sizes are each ~3.29 MB, **not known request/upload sizes** |
+| Test file size | About **11 MB**, **researcher reported**; the ZAP screenshot does not independently establish request Content-Length |
+| Exact 413 response body | **Not inspected yet** |
+| Rejecting component | Not yet identified (could be reverse proxy / gateway or application code) |
+
+**Interpretation:** The observed 413 response is **evidence of a server-side or gateway-side payload size limit** for the attempted larger upload, rather than a solely client-side UI guard. This particular oversized-upload attempt **did not demonstrate bypass of the advertised 10 MB limit**. The precise configured threshold, handling of different file types, and source of 413 have not been verified; it would be inaccurate to declare the entire API4 category secure. Do not confuse response-body size with upload request size.
+
+**Next manual-only action — no new traffic:** Select ZAP History **416** and inspect its **Response → Body** and **Response → Header**. Record whether the message names the limit or the rejecting component; inspect **Request → Header** for Content-Length without disclosing credentials or multipart contents. Do not retry the upload or perform high-volume resource testing. This is a low-impact request limit check, not a DoS attempt.
+
+**Evidence handling:** Do not publish unredacted JWTs, cookies, emails, file content or raw ZAP captures to public GitHub.
