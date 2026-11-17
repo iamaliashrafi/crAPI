@@ -211,3 +211,21 @@ References:
 **Next step:** Run the same script again, this time entering the expected new test phone at the hidden comparison prompt. Confirm `Phone comparison: MATCH` before proceeding to a low-impact write-property test. A mismatch or unavailable result must not be labeled a vulnerability without further checks.
 
 **Evidence hygiene:** No JWT, password, OTP, phone value, email address, or ZAP session is copied into this repository.
+
+## API3 manual Mass Assignment probe B9 — prepared in ZAP Requester (2026-11-17)
+
+**Evidence:** Researcher-provided screenshot shows the researcher-owned TesterA account's previously captured `POST /identity/api/v2/user/change-phone-number` loaded in ZAP Requester Tab 4. This is an **old** successful OTP initiation request; no new mutation test result has yet been provided.
+
+**Baseline:** The current test phone number was subsequently confirmed persisted via `scripts/api03_profile_baseline.py` (`Phone comparison: MATCH`).
+
+**Planned controlled manual test — not yet executed or verified:**
+
+1. Update `old_number` to the currently saved TesterA test phone (do not reuse the stale value from the previously captured request).
+2. Set `new_number` to another disposable, researcher-controlled test phone value, different from the current number.
+3. Add exactly one extra **benign** JSON property `"name":"MassAssignProbeA"` to the initiation request. Avoid attempting changes to `role`, `available_credit` or third-party properties.
+4. Send once in ZAP Requester. Do **not** submit the new OTP yet.
+5. Obtain a fresh authorized read-only dashboard GET and compare its `name` property against the expected original TesterA name **without publishing personal values**. If the extra field unexpectedly changes the name on OTP initiation alone, reproduce and analyze; if unchanged, this single endpoint-stage test does **not** rule out mass assignment at the final verification endpoint or elsewhere.
+
+**Interpretation:** A `200` OTP-sent response means only OTP initiation succeeded, not that `name` was modified, not that phone change was finalized, and not that Mass Assignment was found.
+
+**Disclosure:** The source ZAP Requester screenshot contains a JWT, session cookie and test phone numbers. Do not upload it unredacted to public GitHub or portfolio.
