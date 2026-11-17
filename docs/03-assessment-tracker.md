@@ -13,7 +13,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 | API7 | Server Side Request Forgery | Manual `POST /workshop/api/merchant/contact_mechanic` (#508) with `mechanic_api=http://google.com` and disabled retries | **Confirmed in local lab — benign external SSRF** | HTTP 200 and `response_from_mechanic_api` containing external-site HTML; 89,825-byte body, 750 ms. No internal/private destinations tested. | [API7 journal](10-api7-ssrf-lab.md), [Confirmed finding](../findings/API07-SSRF-ARBITRARY-PUBLIC-URL-FETCH.md) |
 | API8 | Security Misconfiguration | Reopened existing ZAP History #375: malformed phone-change POST returned verbose Spring validator details | **Confirmed in local lab — low-severity framework information disclosure** | HTTP 400 `Validation failed`; JSON `details` exposed `org.springframework.validation.BeanPropertyBindingResult`, `changePhoneForm`, field/constraint structures. No sensitive credentials or stack traces observed. | [API8 journal](11-api8-security-misconfiguration-lab.md), [Finding](../findings/API08-VERBOSE-VALIDATION-ERRORS.md) |
 | API9 | Improper Inventory Management | One manual password-reset OTP probe against documented legacy `/identity/api/auth/v2/check-otp` (#512) with a known-invalid lab code | **Limited check complete — legacy endpoint active; impact not established** | HTTP 500 `Invalid OTP! Please try again.` confirms handler reachable, not weaker controls or an OTP bypass; no brute force performed. | [API9 journal](12-api9-improper-inventory-management-lab.md) |
-| API10 | Unsafe Consumption of APIs | Prior API7 Google HTML reflection recognized as related upstream-response behavior; one benign `httpbin.org` redirect-to `example.com` manual check planned | Planned — no independent API10 proof yet | Arbitrary fetch from API7 not double-counted. Test controlled external redirect behavior once; no internal URLs or floods. | [API10 journal](13-api10-unsafe-consumption-of-apis-lab.md) |
+| API10 | Unsafe Consumption of APIs | One manual Contact Mechanic test (#514) with a benign public `httpbin.org` redirect-to `example.com` URL; request retries disabled | **Limited check complete — inconclusive; no independent API10 finding** | HTTP 400 `Could not connect to mechanic api.` after 5,706 ms, 48-byte body. External redirect processing/validation not established. API7 SSRF is not double-counted. | [API10 journal](13-api10-unsafe-consumption-of-apis-lab.md) |
 
 ## Validation standards
 
@@ -22,5 +22,7 @@ This tracker describes **planned coverage**, not confirmed weaknesses.
 - **Not applicable:** no applicable interface/flow found within the authorized scope and assessed version; justify.
 - **Not tested:** research or testing incomplete.
 
-## Next milestone
-Session 0: verify proxy interception and capture the first authenticated API request. Then begin API1 with User A and User B.
+## Coverage milestone
+All **10 OWASP API Security Top 10 (2023) categories** have received at least one documented lab assessment step, but this is **limited educational coverage, not exhaustive testing**. Five local findings are reported in API1, API3, API5, API7, and API8. Other categories contain limited/negative or inconclusive checks; no assurance of absence of vulnerabilities.
+
+See [Final assessment summary](14-final-assessment-summary.md).
