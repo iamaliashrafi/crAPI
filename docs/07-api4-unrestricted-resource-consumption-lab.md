@@ -47,3 +47,23 @@ API3 community post-feed disclosure was confirmed in the lab across TesterA and 
 Retain only sanitized endpoint details, test conditions, observed status, status messages, timing and size; never publicly commit request headers with JWTs, cookies, OTPs, user identities or phone numbers.
 
 **No API4 finding confirmed.** The above is a planned procedure pending the researcher's manual ZAP response.
+
+## API4 A1 — pagination limit 100, read-only manual control (2026-11-17)
+
+**Evidence:** Researcher-supplied screenshot of an OWASP ZAP Requester test on their own localhost crAPI lab. The screenshot shows the request and response; no load generation or application changes were involved.
+
+| Attribute | Observation |
+|---|---|
+| Method | `GET` |
+| Path | `/community/api/v2/community/posts/recent?limit=100&offset=0` |
+| HTTP status | **`200 OK`** |
+| Response type | `application/json` |
+| Response body length | **1,007 bytes** |
+| ZAP reported elapsed time | **53 ms** |
+| Posts present | **3** (the same three as in the earlier `limit=30` authenticated baseline) |
+
+**Interpretation:** The server accepted the client-supplied `limit=100` and returned only the three available records. This does **not** establish that the backend enforces or lacks a pagination cap: the dataset is smaller than either tested limit. No resource exhaustion, abnormal latency or API4 vulnerability was demonstrated by this one request. A response size around 1007 bytes is unsurprising for three posts and is not evidence of unbounded allocation.
+
+**Next bounded, manual-only check:** Change only `limit=100` to `limit=0` in the same GET request and send once, keeping `offset=0`. Inspect the status and body. This is a safe input-boundary/validation probe, **not** a load test. If the endpoint rejects zero (4xx), note the validation rule; if it accepts zero, record whether it returns an empty list, a default page size, or an error. No repeated or very large requests.
+
+**Safety and evidence:** The screenshot includes a Bearer JWT, session material, author emails and vehicle IDs. Do not publish the raw screenshot or any values in GitHub; preserve only the redacted request metadata and measurements here.
