@@ -56,3 +56,13 @@ The 10 MB video upload limit was challenged once with a researcher-reported ~11 
 **Sources:**
 - https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md (Challenge 7)
 - https://github.com/OWASP/crAPI/blob/develop/openapi-spec/crapi-openapi-spec.json (declared admin delete operation)
+
+## API5 controlled-delete setup — owner video identified (2026-11-17)
+
+**Researcher statement:** The video uploaded by **TesterA** has `video_id` **52** in TesterA's dashboard. This is **researcher-reported**, rather than independently verified by an uploaded dashboard response. The exact ID may be retained in private test notes; public reports should use a placeholder where practical.
+
+**Next manual action:** Log out of TesterA and log into **TesterB**, then load a fresh authenticated `GET /identity/api/v2/user/dashboard` in ZAP Requester. Confirm the Bearer token belongs to TesterB and do not send the delete yet. The intended one-time authorization check will be `DELETE /identity/api/v2/admin/videos/52` with TesterB's *ordinary-user* token, only against the intentionally disposable TesterA video. Test may permanently delete the video. Confirm deletion (or non-deletion) from a fresh TesterA dashboard response after the request. No API5 vulnerability has been observed so far.
+
+**Authoritative endpoint source:** https://github.com/OWASP/crAPI/blob/develop/openapi-spec/crapi-openapi-spec.json (admin video DELETE operation).
+
+**Secret hygiene:** JWT, cookies, account identity and raw screenshots must not be published in the public repository.
