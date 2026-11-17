@@ -301,3 +301,19 @@ References:
 **Correction:** Supplying an `otp` field on the **initiation endpoint** does not test the final handler `POST /identity/api/v2/user/verify-phone-otp`. The 200 response merely reports OTP dispatch. No change to profile `name` or `number` is established and no Mass Assignment finding has been made.
 
 **Next manual-only action:** In ZAP Requester open a previously captured **verify-phone-otp** request (History 366) and ensure the request path is `/identity/api/v2/user/verify-phone-otp`. Populate only the researcher-owned account's current old/new test phone values, a **fresh OTP from the latest relevant MailHog message**, and one benign `name` probe field. Send once; then independently check the actual stored `number` and `name`. Multiple OTP issuance events may mean older codes are obsolete. Never publish OTP, bearer JWT, session cookie, or phone values. Do not use Python scripts per the researcher's manual-only preference.
+
+## API3 manual verification B15 — old-number ownership check fails (2026-11-17)
+
+**Evidence:** Researcher-provided ZAP Requester screenshot for the authorized local crAPI lab. The Requester request now targets the **correct final verification endpoint** `POST /identity/api/v2/user/verify-phone-otp`, with the JSON keys `old_number`, `new_number`, `otp`, and one extra benign `name` probe marker. The actual OTP, phone values, JWT, and cookie are deliberately omitted here.
+
+**Observed response:**
+- HTTP status line: **`HTTP/1.1 500`** (as visible in Requester).
+- JSON message: `"Fail, number parameter doesn’t belong to the user"`.
+- JSON `status`: **`403`**, inconsistent with the HTTP status.
+- The server apparently rejected a phone-number ownership check before the test could demonstrate any unauthorized property update.
+
+**Interpretation:** This is **not a successful Mass Assignment test** and does not demonstrate that the extra `name` property has been accepted or rejected. It suggests either the `old_number` does not currently belong to the authenticated user or another mismatch in request/session/current account state. Do not infer the precise underlying cause without checking the current account state. The HTTP 500 / JSON 403 inconsistency is a separate, provisional error-status mapping issue.
+
+**Next action (no new POSTs):** Refresh the researcher's own TesterA `/my-profile` page, verify the active account and compare its currently displayed phone to the private `old_number` in the Requester. Report only whether they match. If the profile display is ambiguous, use a fresh authenticated read-only dashboard GET to compare `number`; do not disclose the phone. Reassess the latest issued OTP only after the owner-number discrepancy has been resolved.
+
+**Evidence hygiene:** The uploaded screenshot displays a real lab OTP, test phone values, authorization bearer JWT and session cookie; never publish it unredacted.
