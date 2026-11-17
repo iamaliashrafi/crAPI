@@ -86,3 +86,13 @@ The 10 MB video upload limit was challenged once with a researcher-reported ~11 
 **Next step (manual, read-only):** Do **not** repeat DELETE. Sign out of TesterB, sign back in as TesterA, refresh `/my-profile`, and inspect whether the disposable video has disappeared. If needed, examine a fresh `GET /identity/api/v2/user/dashboard` for the `video_id`/video-related fields (values redacted in public screenshots). Return only presence/absence and status. A confirmed missing video would support an independent API5 finding.
 
 **Evidence hygiene:** Screenshot includes a full lab Bearer JWT, session data and API details. Do not upload raw screenshot to the public repository. Report uses only sanitized properties and nonsecret response content.
+
+## API5 owner-state confirmation — confirmed unauthorized video deletion (2026-11-17)
+
+**Researcher's follow-up:** After a single manual **TesterB** `DELETE /identity/api/v2/admin/videos/52` received HTTP **200** and `User video deleted successfully.`, the researcher returned to the **TesterA** account and explicitly confirmed that the uploaded disposable video had been **deleted**. This post-test owner-state result is **researcher-reported**, while request/response success is independently visible in the supplied ZAP screenshot.
+
+**Final classification for this local lab:** **Confirmed — API5 Broken Function Level Authorization**, permitting a reportedly ordinary-user token to invoke an administrative deletion function on another test account's video. Only this one privileged function and this one disposable researcher-owned target were tested. No further DELETE should be sent.
+
+**Sanitized standalone finding:** [API05-BFLA-001 — Unauthorized video deletion](../findings/API05-BFLA-UNAUTHORIZED-VIDEO-DELETION.md). Provisional severity **High**; no formal CVSS or remedial code change performed.
+
+**Transition:** The researcher requested to move directly to **API6:2023 — Unrestricted Access to Sensitive Business Flows**. Continue manually with OWASP ZAP only, using low-volume, non-disruptive checks.
