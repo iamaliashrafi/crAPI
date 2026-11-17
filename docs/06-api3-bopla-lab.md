@@ -166,3 +166,18 @@ References:
 **Next single action:** Revisit `/my-profile` as TesterA or inspect a fresh `GET /identity/api/v2/user/dashboard` in ZAP. Verify that `phone` now shows the new test number and examine which other profile properties are returned, without recording their values. This gives a reliable persisted-state baseline and reveals candidate property names for a later controlled extra-field test. Do not add arbitrary attributes or replay this already consumed OTP in the baseline phase.
 
 **Security / disclosure:** The raw screenshot contains a complete JWT, session cookie, lab OTP and test phone numbers. Do not publish the screenshot or its secret values in GitHub/Upwork/LinkedIn. This report retains only field names and sanitized response metadata.
+
+## Python-assisted workflow B7 — read-only dashboard baseline (2026-11-17)
+
+**Status:** Script created in public GitHub repository; **not yet run by the researcher on their Mac**. Therefore no new local crAPI response or property status has been observed.
+
+**Artifacts:**
+- [Python script](../scripts/api03_profile_baseline.py)
+- [Setup and safety instructions](../scripts/README.md)
+- [Dependency declaration](../scripts/requirements.txt)
+
+**Workflow:** Authenticate TesterA by a direct localhost POST (hidden input, password not sent via ZAP), make exactly one authenticated `GET /identity/api/v2/user/dashboard` via ZAP's locally configured port 8081, print sanitized JSON field names and types, and optionally compare the requested test phone value against a phone-like field without showing raw values. If no phone property is returned, the script states the comparison is unavailable and asks the researcher to verify in the refreshed profile instead.
+
+**Why:** Establish a precise, reproducible post-change profile baseline before designing a single controlled property mutation test for Mass Assignment. Keep all credentials, OTPs, JWTs, cookies and phone values out of public GitHub artifacts.
+
+**Next step:** The researcher runs the script locally and shares only HTTP status, field names and phone-comparison state. Do not claim the phone is persisted or Mass Assignment is confirmed before reading the actual results.
