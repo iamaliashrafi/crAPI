@@ -33,3 +33,22 @@ API7 SSRF was confirmed on `POST /workshop/api/merchant/contact_mechanic` using 
 ## Evidence policy
 
 The source ZAP capture contains sensitive request data. Never commit unredacted screenshots or complete authorization headers to public GitHub.
+
+## API8 A1 — internal Java/Spring validation details confirmed (2026-11-17)
+
+**Evidence:** Researcher-provided ZAP Request & Response screenshot re-inspecting existing manual **History #375**, `POST /identity/api/v2/user/change-phone-number` in their authorized local crAPI lab. No new request was sent for this check.
+
+| Attribute | Directly observed |
+|---|---|
+| HTTP status | **400 Bad Request** |
+| JSON `message` | `Validation failed` |
+| JSON `details` | Starts with `org.springframework.validation.BeanPropertyBindingResult: 2 errors` |
+| Application structure disclosed | `changePhoneForm`, fields `new_number` and `old_number`, Java/Spring binding/validation class names |
+| Input constraints | `Size` validation with range 0 to 15 |
+| Secrets / filesystem paths | **None evidenced in the error response screenshot** |
+
+**Assessment:** **Confirmed low-severity / informational-style API8 verbose error disclosure**. Invalid user-supplied field values were correctly rejected with HTTP 400, but client-visible `details` unnecessarily exposed framework internals and internal form/validator structures. No server compromise, credential disclosure, stack-trace path leak, or critical misconfiguration demonstrated.
+
+**Standalone sanitized finding:** [API08-MISCONFIG-001 — Verbose Spring Validation Errors](../findings/API08-VERBOSE-VALIDATION-ERRORS.md). Provisional severity **Low**. No remediation or retest performed.
+
+**Next:** Manual API9 audit of API version inventory: contrast the documented `/identity/api/auth/v3/check-otp` route (observed earlier) with the older `/identity/api/auth/v2/check-otp` route in the official crAPI OpenAPI spec; do at most one negative-control request to the older version, with test-owned account and a known-invalid or already-used OTP, without brute forcing.
